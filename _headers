@@ -1,0 +1,14 @@
+# Cloudflare Pages headers file (https://developers.cloudflare.com/pages/configuration/headers/)
+# Applied automatically when this folder is the deploy output.
+
+# Sensible security headers for a static brochure site
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Long-cache fingerprint-free assets (logos, fonts handled by Google).
+# HTML stays uncached so content edits go live immediately.
+/assets/*
+  Cache-Control: public, max-age=86400
