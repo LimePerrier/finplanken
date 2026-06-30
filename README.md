@@ -26,9 +26,9 @@ This repository **is** the site root, so deployment needs no build:
 `_headers` (in this folder) adds security headers + asset caching automatically on Cloudflare Pages.
 
 ## Before going live — replace placeholders
-- [ ] Brand / logo in the nav and footer
-- [ ] Email address (top bar, CTAs, footer, contact page) — currently `[ email placeholder ]`
-- [ ] Name / brand in the footer copyright
+- [x] Brand / logo in the nav and footer - currently Bracket Planning
+- [x] Email address (top bar, CTAs, footer, contact page) - currently `info@bracketplanning.ca`
+- [x] Name / brand in the footer copyright
 - [ ] Headshot image at `assets/ken-headshot.jpg`
 - [ ] Booking link on the "Book a call" buttons (e.g. Calendly / Cal.com)
 - [ ] Wire the contact form to a handler (e.g. Web3Forms / Formspree)
