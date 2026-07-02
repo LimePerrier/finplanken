@@ -29,11 +29,9 @@
   var form = document.getElementById('invite-form');
   var status = document.getElementById('invite-status');
   var token = document.getElementById('admin-token');
-  token.value = sessionStorage.getItem('bp_admin_token') || '';
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
     status.textContent = 'Creating invite...';
-    sessionStorage.setItem('bp_admin_token', token.value);
     var response = await fetch('/api/admin/invite', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-admin-token': token.value },

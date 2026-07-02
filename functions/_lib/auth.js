@@ -19,10 +19,10 @@ export async function readJson(request) {
 }
 
 export function requireAdmin(request, env) {
-  const expected = env.ADMIN_INVITE_TOKEN;
+  const expected = String(env.ADMIN_INVITE_TOKEN || "").trim();
   const header = request.headers.get("x-admin-token") || "";
   const bearer = request.headers.get("authorization") || "";
-  const token = header || bearer.replace(/^Bearer\s+/i, "");
+  const token = (header || bearer.replace(/^Bearer\s+/i, "")).trim();
   return Boolean(expected && token && safeEqual(token, expected));
 }
 
@@ -48,7 +48,7 @@ export async function sha256(value) {
 export async function hashPassword(password) {
   const salt = new Uint8Array(16);
   crypto.getRandomValues(salt);
-  const iterations = 310000;
+  const iterations = 100000;
   const key = await crypto.subtle.importKey("raw", textEncoder.encode(password), "PBKDF2", false, ["deriveBits"]);
   const bits = await crypto.subtle.deriveBits(
     { name: "PBKDF2", hash: "SHA-256", salt, iterations },

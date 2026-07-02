@@ -39,17 +39,23 @@
       return;
     }
     status.textContent = 'Creating your account...';
-    var response = await fetch('/api/invites/accept', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token: inviteToken, password: password })
-    });
-    var data = await response.json();
-    if (!response.ok) {
-      status.textContent = data.error || 'Could not accept invite.';
-      return;
+    try {
+      var response = await fetch('/api/invites/accept', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token: inviteToken, password: password })
+      });
+      var text = await response.text();
+      var data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch (parseError) {}
+      if (!response.ok) {
+        status.textContent = data.error || text || 'Could not accept invite.';
+        return;
+      }
+      window.location.href = 'portal.html';
+    } catch (error) {
+      status.textContent = 'Could not reach the portal. Please refresh and try again.';
     }
-    window.location.href = 'portal.html';
   });
 })();
 </script>
