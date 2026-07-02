@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Bracket Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-admin">
+</head>
+<body class="portal-body">
+<main class="admin-shell">
+  <section class="admin-header">
+    <div>
+      <a class="portal-logo" href="index.html">Bracket Planning</a>
+      <h1>Admin</h1>
+    </div>
+    <label class="admin-token">Admin token<input id="admin-token" type="password" autocomplete="current-password"></label>
+  </section>
+
+  <section class="admin-grid">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <h2>Clients</h2>
+        <a class="btn dark" href="admin-invite.html">Invite Client</a>
+      </div>
+      <div id="client-list" class="client-list"></div>
+    </div>
+
+    <div class="admin-card">
+      <div id="client-detail" class="client-detail empty">Select a client to view their data.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var tokenInput = document.getElementById('admin-token');
+  var list = document.getElementById('client-list');
+  var detail = document.getElementById('client-detail');
+  var selectedClientId = '';
+
+  tokenInput.value = sessionStorage.getItem('bp_admin_token') || '';
+  tokenInput.addEventListener('change', function () {
+    sessionStorage.setItem('bp_admin_token', tokenInput.value);
+    loadClients();
+  });
+
+  function adminHeaders() {
+    return { 'content-type': 'application/json', 'x-admin-token': tokenInput.value };
+  }
+
+  async function api(path, options) {
+    var response = await fetch(path, Object.assign({ headers: adminHeaders() }, options || {}));
+    var text = await response.text();
+    var data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch (error) {}
+    if (!response.ok) throw new Error(data.error || text || 'Request failed.');
+    return data;
+  }
+
+  function statusBadge(status) {
+    return '<span class="status-badge ' + status + '">' + status + '</span>';
+  }
+
+  async function loadClients() {
+    if (!tokenInput.value) {
+      list.innerHTML = '<p class="muted">Enter your admin token to load clients.</p>';
+      return;
+    }
+    list.innerHTML = '<p class="muted">Loading clients...</p>';
+    try {
+      var data = await api('/api/admin/clients');
+      if (!data.clients.length) {
+        list.innerHTML = '<p class="muted">No clients yet.</p>';
+        return;
+      }
+      list.innerHTML = data.clients.map(function (client) {
+        return '<button class="client-row" data-id="' + client.id + '">' +
+          '<strong>' + escapeHtml(client.name || client.email) + '</strong>' +
+          '<span>' + escapeHtml(client.email) + '</span>' +
+          '<small>' + statusBadge(client.status) + ' ' + Number(client.record_count || 0) + ' records</small>' +
+        '</button>';
+      }).join('');
+      list.querySelectorAll('.client-row').forEach(function (button) {
+        button.addEventListener('click', function () {
+          selectedClientId = button.getAttribute('data-id');
+          loadClient(selectedClientId);
+        });
+      });
+      if (selectedClientId) loadClient(selectedClientId);
+    } catch (error) {
+      list.innerHTML = '<p class="portal-status">' + escapeHtml(error.message) + '</p>';
+    }
+  }
+
+  async function loadClient(id) {
+    detail.innerHTML = '<p class="muted">Loading client...</p>';
+    try {
+      var data = await api('/api/admin/clients/' + encodeURIComponent(id));
+      var client = data.client;
+      detail.innerHTML =
+        '<div class="client-detail-head">' +
+          '<div><h2>' + escapeHtml(client.name || client.email) + '</h2><p>' + escapeHtml(client.email) + '</p></div>' +
+          statusBadge(client.status) +
+        '</div>' +
+        '<div class="admin-actions">' +
+          '<button class="btn ghost" id="toggle-status">' + (client.status === 'disabled' ? 'Reactivate Login' : 'Suspend Login') + '</button>' +
+        '</div>' +
+        '<form id="record-form" class="portal-form record-form">' +
+          '<h3>Add client data</h3>' +
+          '<label>Title<input id="record-title" required></label>' +
+          '<label>Type<select id="record-type"><option value="note">Note</option><option value="questionnaire">Questionnaire</option><option value="document">Document</option><option value="planning">Planning Data</option></select></label>' +
+          '<label>Details<textarea id="record-body" required></textarea></label>' +
+          '<label class="checkbox-line"><input id="record-visible" type="checkbox"> Visible to client later</label>' +
+          '<button class="btn dark" type="submit">Add Data</button>' +
+          '<div id="record-status" class="portal-status"></div>' +
+        '</form>' +
+        '<h3>Existing data</h3>' +
+        '<div class="record-list">' + renderRecords(data.records) + '</div>' +
+        '<h3>Invite history</h3>' +
+        '<div class="record-list compact">' + renderInvites(data.invites) + '</div>';
+
+      document.getElementById('toggle-status').addEventListener('click', async function () {
+        var nextStatus = client.status === 'disabled' ? 'active' : 'disabled';
+        await api('/api/admin/clients/' + encodeURIComponent(id), {
+          method: 'PATCH',
+          body: JSON.stringify({ status: nextStatus })
+        });
+        loadClients();
+        loadClient(id);
+      });
+
+      document.getElementById('record-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var status = document.getElementById('record-status');
+        status.textContent = 'Adding data...';
+        try {
+          await api('/api/admin/clients/' + encodeURIComponent(id) + '/records', {
+            method: 'POST',
+            body: JSON.stringify({
+              title: document.getElementById('record-title').value,
+              recordType: document.getElementById('record-type').value,
+              body: document.getElementById('record-body').value,
+              visibleToClient: document.getElementById('record-visible').checked
+            })
+          });
+          loadClients();
+          loadClient(id);
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      });
+    } catch (error) {
+      detail.innerHTML = '<p class="portal-status">' + escapeHtml(error.message) + '</p>';
+    }
+  }
+
+  function renderRecords(records) {
+    if (!records.length) return '<p class="muted">No data has been added for this client yet.</p>';
+    return records.map(function (record) {
+      return '<article class="record-item">' +
+        '<div><strong>' + escapeHtml(record.title) + '</strong><small>' + escapeHtml(record.record_type) + ' - ' + formatDate(record.created_at) + '</small></div>' +
+        '<p>' + escapeHtml(record.body).replace(/\n/g, '<br>') + '</p>' +
+      '</article>';
+    }).join('');
+  }
+
+  function renderInvites(invites) {
+    if (!invites.length) return '<p class="muted">No invites found.</p>';
+    return invites.map(function (invite) {
+      var state = invite.used_at ? 'used' : 'pending';
+      return '<article class="record-item"><strong>' + state + '</strong><small>Created ' + formatDate(invite.created_at) + '</small></article>';
+    }).join('');
+  }
+
+  function formatDate(value) {
+    return value ? new Date(value).toLocaleString() : '';
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (char) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+    });
+  }
+
+  loadClients();
+})();
+</script>
+</body>
+</html>
