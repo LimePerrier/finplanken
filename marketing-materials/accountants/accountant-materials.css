@@ -131,6 +131,41 @@ h3 {
   height: 1.18in;
 }
 
+.advisor-photos {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.14in;
+  justify-content: flex-end;
+}
+
+.advisor-photos figure {
+  margin: 0;
+  text-align: center;
+}
+
+.advisor-photos figcaption {
+  color: #f4efe2;
+  font-size: 6.5pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  margin-top: 0.045in;
+  text-transform: uppercase;
+}
+
+.placeholder-photo {
+  align-items: center;
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255, 255, 255, 0.18), transparent 28%),
+    linear-gradient(145deg, #315d4d, #143a2e);
+  color: var(--gold-l);
+  display: flex;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 30pt;
+  font-weight: 700;
+  justify-content: center;
+}
+
 .identity {
   background: var(--cream2);
   border-bottom: 1px solid var(--line2);
@@ -419,23 +454,32 @@ p {
 }
 
 .one-page .hero {
-  grid-template-columns: 1fr 1.18in;
+  grid-template-columns: minmax(0, 1fr) 2.42in;
   padding: 0.25in 0.42in;
 }
 
 .one-page .hero h1 {
-  font-size: 22.5pt;
-  max-width: 5.6in;
+  font-size: 21.3pt;
+  max-width: 4.72in;
 }
 
 .one-page .hero p {
   font-size: 9.1pt;
   margin-top: 0.08in;
+  max-width: 4.9in;
 }
 
 .one-page .headshot {
-  height: 1.15in;
-  width: 1.15in;
+  height: 1.06in;
+  width: 1.06in;
+}
+
+.one-page .advisor-photos {
+  gap: 0.14in;
+}
+
+.one-page .advisor-photos figcaption {
+  font-size: 5.8pt;
 }
 
 .one-page .identity {
@@ -448,11 +492,26 @@ p {
 }
 
 .one-page .page-pad {
-  padding: 0.25in 0.42in 0.2in;
+  padding: 0.38in 0.42in 0.2in;
 }
 
 .one-page .grid-2 {
-  gap: 0.11in;
+  column-gap: 0.16in;
+  row-gap: 0.2in;
+}
+
+.one-page .referral-lists {
+  margin-top: 0.28in;
+}
+
+.one-page .intro-row {
+  align-items: start;
+}
+
+.one-page .intro-row .quote-card {
+  align-self: start;
+  padding-bottom: 0.11in;
+  padding-top: 0.11in;
 }
 
 .one-page h2 {
@@ -483,7 +542,11 @@ p {
 }
 
 .one-page .spacer-md {
-  height: 0.095in;
+  height: 0.16in;
+}
+
+.one-page .service-grid {
+  row-gap: 0.13in;
 }
 
 .one-page .stat-strip {
@@ -519,7 +582,7 @@ p {
 
 .one-page .footer {
   font-size: 6.9pt;
-  margin-top: 0.1in;
+  margin-top: 0.28in;
   padding-top: 0.08in;
 }
 

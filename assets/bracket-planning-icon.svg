@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Bracket Planning Icon</title>
+  <desc id="desc">Nested square Bracket Planning logo mark in forest green and brass.</desc>
+  <rect width="1024" height="1024" rx="168" fill="#fffefb"/>
+  <rect x="238" y="238" width="548" height="548" rx="86" fill="none" stroke="#bd9444" stroke-width="34"/>
+  <rect x="436" y="238" width="350" height="350" rx="66" fill="none" stroke="#143a2e" stroke-width="34"/>
+  <rect x="238" y="436" width="238" height="238" rx="50" fill="#f3ead7" stroke="#bd9444" stroke-width="30"/>
+</svg>

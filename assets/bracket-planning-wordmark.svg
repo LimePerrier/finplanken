@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="420" viewBox="0 0 1600 420" role="img" aria-labelledby="title desc">
+  <title id="title">Bracket Planning Wordmark</title>
+  <desc id="desc">Bracket Planning horizontal wordmark with nested square logo mark.</desc>
+  <rect width="1600" height="420" fill="#fffefb"/>
+  <g transform="translate(90 82)">
+    <rect x="0" y="0" width="256" height="256" rx="40" fill="none" stroke="#bd9444" stroke-width="16"/>
+    <rect x="92" y="0" width="164" height="164" rx="30" fill="none" stroke="#143a2e" stroke-width="16"/>
+    <rect x="0" y="92" width="112" height="112" rx="24" fill="#f3ead7" stroke="#bd9444" stroke-width="14"/>
+  </g>
+  <text x="405" y="182" fill="#143a2e" font-family="Cormorant Garamond, Georgia, serif" font-size="112" font-weight="700">Bracket Planning</text>
+  <text x="410" y="252" fill="#5d6962" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="600" letter-spacing="6">ADVICE-ONLY FINANCIAL PLANNING</text>
+</svg>

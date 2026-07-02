@@ -1,57 +1,46 @@
 # Client Handout
 
-## Questions to answer before you retire
+## Questions to answer when your planning involves a corporation
 
-Retirement is not just a savings goal. It is a sequence of financial decisions that can affect your taxes, lifestyle, estate, and confidence for decades.
+For incorporated professionals, business owners, and families with complexity, planning is not just about retirement. It is about coordinating personal cash flow, corporate assets, tax, estate decisions, and family goals.
 
-Before you retire, or in the first few years after retiring, these are the questions worth answering clearly.
+These are the questions worth answering clearly.
 
-## 1. Can I retire, and will I have enough?
+## 1. How should I pay myself from my corporation?
 
-- What lifestyle can my savings support?
-- How long does my money need to last?
-- What happens if markets are weak early in retirement?
-- What if I live longer than expected?
-- Can I retire earlier than I thought, or should I work longer?
+- Should I use salary, dividends, or a blended approach?
+- How much personal cash flow do I actually need?
+- How does compensation affect CPP, RRSP room, and corporate cash?
+- What should stay inside the corporation?
 
-## 2. Which accounts should I draw from first?
+## 2. What should happen to retained earnings?
 
-- Should I draw from RRSPs, RRIFs, TFSAs, non-registered accounts, or corporate assets first?
-- How much should I withdraw each year?
-- Should I smooth taxable income over time?
-- Am I creating future tax problems by deferring withdrawals too long?
+- Should corporate investments be preserved, drawn down, or moved personally?
+- How will retained earnings support retirement income?
+- Could passive income or future withdrawals create tax issues?
 
-## 3. When should I take CPP and OAS?
+## 3. Can corporate and personal assets support retirement?
 
-- Should I start CPP at 60, 65, 70, or somewhere in between?
-- Should I delay OAS?
-- Will my income trigger OAS clawbacks?
-- How does pension income affect the timing decision?
-- How do my spouse's benefits change the strategy?
+- Which assets should be used first?
+- How do RRSP/RRIF, TFSA, non-registered, and corporate assets work together?
+- When should CPP and OAS fit into the plan?
 
-## 4. How will taxes affect my retirement income?
+## 4. How will taxes affect income and estate value?
 
 - What will my taxable income look like year by year?
-- Can I reduce lifetime tax through better withdrawal sequencing?
-- Can I avoid unnecessary OAS clawbacks?
-- Are my investments held in the right accounts?
-- Will my estate face a large tax bill later?
+- Can withdrawal sequencing reduce lifetime tax?
+- Could corporate assets create estate or liquidity issues later?
 
-## 5. If I own a corporation, how should I use it in retirement?
+## 5. Is succession or wind-down part of the plan?
 
-- Should I pay myself salary, dividends, or a mix?
-- How should retained earnings be accessed?
-- Should corporate investments be drawn down or preserved?
-- What is the plan for corporate wind-down?
-- How do corporate decisions affect personal retirement income?
+- Will the business be sold, transferred, wound down, or continued?
+- What does the transition mean for income and tax?
 
-## 6. How should my investments change in retirement?
+## 6. How should investments be located?
 
-- Is my portfolio built for withdrawals, not just growth?
-- Do I have the right balance of risk and stability?
-- How much cash or near-cash should I keep available?
+- Which assets belong personally, corporately, or in registered accounts?
+- Is the portfolio built for tax efficiency and future withdrawals?
 - What happens during inflation, higher interest rates, or market volatility?
-- Do I need professional investment management, or simply planning advice?
 
 ## 7. Is my estate plan coordinated with my financial plan?
 
@@ -60,39 +49,39 @@ Before you retire, or in the first few years after retiring, these are the quest
 - Will my children be treated fairly?
 - Do I need estate equalization planning?
 - Are wills, powers of attorney, and personal directives current?
-- Could taxes or probate reduce what my family receives?
+- How do corporate assets, insurance, and liquidity affect the estate?
 
 ## 8. What needs to be reviewed every year?
 
-Retirement planning is not a one-time exercise. Each year, the right plan may change because of:
+Planning is not a one-time exercise. Each year, the right plan may change because of:
 
+- Compensation
+- Corporate cash
 - Investment returns
 - Tax rules
 - Health
 - Family circumstances
-- Spending needs
+- Estate goals
 - Real estate decisions
 - Inheritances or gifts
 - Business or corporate changes
 
 ## What a financial plan should give you
 
-A strong retirement plan should help you understand:
+A strong plan should help you understand:
 
-- When you can retire
-- How much you can spend
-- Which accounts to use and when
-- How CPP and OAS fit into the plan
-- How to reduce tax over time
-- How your corporation fits, if you own one
-- How your estate plan and retirement plan connect
+- How to pay yourself from the corporation
+- How much you can spend personally
+- Which accounts and entities to use and when
+- How retained earnings fit into retirement income
+- How tax and estate decisions connect over time
 - What to review each year
 
 ## Need an independent second opinion?
 
-Bracket Planning provides independent, fee-only, advice-only financial planning. He does not sell investment products and does not charge based on assets under management.
+Bracket Planning provides independent, fee-only, advice-only financial planning. We do not sell investment products and do not charge based on assets under management.
 
-The goal is simple: give you a clear financial roadmap, explained in plain language, so you know what to do and when.
+The goal is simple: a clear financial roadmap across your personal, corporate, tax, and estate decisions.
 
 Bracket Planning
 Independent fee-only financial planner  

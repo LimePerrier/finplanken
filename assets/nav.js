@@ -28,30 +28,57 @@
       });
     }
 
-    // Fee-only vs 1.5% AUM calculator
-    var amt = document.getElementById('in-amt');
-    if (amt) {
-      var yrsEl = document.getElementById('in-yrs');
-      var GROWTH = 0.05, AUM = 0.015, FLAT = 4200;
+    // Salary vs dividend illustration for incorporated professionals
+    var profitEl = document.getElementById('in-comp-profit');
+    if (profitEl) {
+      var salaryShareEl = document.getElementById('in-comp-salary-share');
+      var corpRateEl = document.getElementById('in-comp-corp-rate');
+      var salaryTaxEl = document.getElementById('in-comp-salary-tax');
+      var dividendTaxEl = document.getElementById('in-comp-div-tax');
       var money = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
-      var calc = function () {
-        var P = +amt.value, N = +yrsEl.value;
-        var bAum = P, bFlat = P, paidAum = 0, paidFlat = 0;
-        for (var i = 0; i < N; i++) {
-          bAum = bAum * (1 + GROWTH); var f = bAum * AUM; bAum -= f; paidAum += f;
-          bFlat = bFlat * (1 + GROWTH); bFlat -= FLAT; paidFlat += FLAT;
-        }
-        document.getElementById('calc-amt').textContent = money(P);
-        document.getElementById('calc-yrs').textContent = N + ' years';
-        document.getElementById('calc-yrs2').textContent = N;
-        document.getElementById('calc-diff').textContent = money(bFlat - bAum);
-        document.getElementById('calc-end-aum').textContent = money(bAum);
-        document.getElementById('calc-end-flat').textContent = money(bFlat);
-        document.getElementById('calc-aum').textContent = money(paidAum);
-        document.getElementById('calc-flat').textContent = money(paidFlat);
+      var pct = function (n) { return Number(n).toFixed(n % 1 ? 1 : 0) + '%'; };
+      var compensation = function (profit, salaryShare, corpRate, salaryTax, dividendTax) {
+        var salary = profit * salaryShare;
+        var corpIncome = Math.max(0, profit - salary);
+        var corpTax = corpIncome * corpRate;
+        var dividend = Math.max(0, corpIncome - corpTax);
+        var netSalary = salary * (1 - salaryTax);
+        var netDividend = dividend * (1 - dividendTax);
+        return {
+          salary: salary,
+          corpTax: corpTax,
+          netCash: netSalary + netDividend,
+          rrspRoom: salary * 0.18
+        };
       };
-      amt.addEventListener('input', calc);
-      yrsEl.addEventListener('input', calc);
+      var calc = function () {
+        var profit = +profitEl.value;
+        var salaryShare = +salaryShareEl.value / 100;
+        var corpRate = +corpRateEl.value / 100;
+        var salaryTax = +salaryTaxEl.value / 100;
+        var dividendTax = +dividendTaxEl.value / 100;
+        var selected = compensation(profit, salaryShare, corpRate, salaryTax, dividendTax);
+        var allSalary = compensation(profit, 1, corpRate, salaryTax, dividendTax);
+        var allDividend = compensation(profit, 0, corpRate, salaryTax, dividendTax);
+        var dividendShare = 100 - +salaryShareEl.value;
+
+        document.getElementById('calc-comp-profit').textContent = money(profit);
+        document.getElementById('calc-comp-salary-share').textContent = pct(+salaryShareEl.value);
+        document.getElementById('calc-comp-corp-rate').textContent = pct(+corpRateEl.value);
+        document.getElementById('calc-comp-salary-tax').textContent = pct(+salaryTaxEl.value);
+        document.getElementById('calc-comp-div-tax').textContent = pct(+dividendTaxEl.value);
+        document.getElementById('calc-comp-mix').textContent = pct(+salaryShareEl.value) + ' salary / ' + pct(dividendShare) + ' dividends';
+        document.getElementById('calc-comp-net').textContent = money(selected.netCash);
+        document.getElementById('calc-comp-all-salary').textContent = money(allSalary.netCash);
+        document.getElementById('calc-comp-all-dividend').textContent = money(allDividend.netCash);
+        document.getElementById('calc-comp-rrsp').textContent = money(selected.rrspRoom);
+        document.getElementById('calc-comp-corp-tax').textContent = money(selected.corpTax);
+      };
+      profitEl.addEventListener('input', calc);
+      salaryShareEl.addEventListener('input', calc);
+      corpRateEl.addEventListener('input', calc);
+      salaryTaxEl.addEventListener('input', calc);
+      dividendTaxEl.addEventListener('input', calc);
       calc();
     }
 
@@ -85,4 +112,3 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
-
