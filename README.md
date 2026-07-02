@@ -51,4 +51,8 @@ Required Cloudflare setup:
    - `ADMIN_INVITE_TOKEN`: private token used by `admin-invite.html`
    - `APP_URL`: production site origin, for example `https://bracketplanning.ca`
    - `INVITE_FROM`: verified sender address for invite emails
-4. Configure the `EMAIL` binding if you want Cloudflare Email Service to send invites. Without it, the admin page still returns a test invite link.
+4. To send invite emails through Cloudflare Email Service, onboard the sending domain and add:
+   - `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
+   - `CLOUDFLARE_EMAIL_API_TOKEN`: secret API token with Email Sending edit permission
+
+Without email settings, the admin page still returns a test invite link.

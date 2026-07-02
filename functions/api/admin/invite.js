@@ -54,6 +54,29 @@ export async function onRequestPost({ request, env }) {
       html: `<p>Welcome to Bracket Planning.</p><p><a href="${inviteUrl}">Set your portal password</a></p><p>This link expires in 7 days.</p>`,
     });
     emailSent = true;
+  } else if (env.CLOUDFLARE_ACCOUNT_ID && env.CLOUDFLARE_EMAIL_API_TOKEN && env.INVITE_FROM) {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/email/sending/send`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${env.CLOUDFLARE_EMAIL_API_TOKEN}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          to: email,
+          from: env.INVITE_FROM,
+          subject: "Set up your Bracket Planning portal account",
+          text: `Welcome to Bracket Planning.\n\nUse this secure link to set your password:\n${inviteUrl}\n\nThis link expires in 7 days.`,
+          html: `<p>Welcome to Bracket Planning.</p><p><a href="${inviteUrl}">Set your portal password</a></p><p>This link expires in 7 days.</p>`,
+        }),
+      }
+    );
+    if (!response.ok) {
+      const errorText = await response.text();
+      return json({ error: "Invite was created, but the email could not be sent.", details: errorText, inviteUrl }, { status: 502 });
+    }
+    emailSent = true;
   }
 
   return json({ ok: true, emailSent, inviteUrl, expiresAt });
