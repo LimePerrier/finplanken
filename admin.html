@@ -117,6 +117,18 @@
           '<button class="btn dark" type="submit">Add Data</button>' +
           '<div id="record-status" class="portal-status"></div>' +
         '</form>' +
+        '<form id="document-form" class="portal-form record-form">' +
+          '<h3>Upload client document</h3>' +
+          '<label>Title<input id="document-title" required></label>' +
+          '<label>Slot<select id="document-type"><option value="plan_pdf">Plan PDF</option><option value="spreadsheet">Excel Spreadsheet</option><option value="docx">Word Document</option></select></label>' +
+          '<label>File<input id="document-file" type="file" required></label>' +
+          '<button class="btn dark" type="submit">Upload Document</button>' +
+          '<div id="document-status" class="portal-status"></div>' +
+        '</form>' +
+        '<h3>Client documents</h3>' +
+        '<div class="record-list">' + renderDocuments(data.documents, client.id) + '</div>' +
+        '<h3>Questionnaire answers</h3>' +
+        '<div class="record-list">' + renderQuestionnaire(data.questionnaire) + '</div>' +
         '<h3>Existing data</h3>' +
         '<div class="record-list">' + renderRecords(data.records) + '</div>' +
         '<h3>Invite history</h3>' +
@@ -152,6 +164,35 @@
           status.textContent = error.message;
         }
       });
+
+      document.getElementById('document-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var status = document.getElementById('document-status');
+        var file = document.getElementById('document-file').files[0];
+        if (!file) {
+          status.textContent = 'Choose a file to upload.';
+          return;
+        }
+        status.textContent = 'Uploading document...';
+        var formData = new FormData();
+        formData.append('title', document.getElementById('document-title').value);
+        formData.append('documentType', document.getElementById('document-type').value);
+        formData.append('file', file);
+        try {
+          var response = await fetch('/api/admin/clients/' + encodeURIComponent(id) + '/documents', {
+            method: 'POST',
+            headers: { 'x-admin-token': tokenInput.value },
+            body: formData
+          });
+          var text = await response.text();
+          var data = {};
+          try { data = text ? JSON.parse(text) : {}; } catch (error) {}
+          if (!response.ok) throw new Error(data.error || text || 'Upload failed.');
+          loadClient(id);
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      });
     } catch (error) {
       detail.innerHTML = '<p class="portal-status">' + escapeHtml(error.message) + '</p>';
     }
@@ -173,6 +214,25 @@
       var state = invite.used_at ? 'used' : 'pending';
       return '<article class="record-item"><strong>' + state + '</strong><small>Created ' + formatDate(invite.created_at) + '</small></article>';
     }).join('');
+  }
+
+  function renderDocuments(documents) {
+    if (!documents.length) return '<p class="muted">No documents uploaded yet.</p>';
+    return documents.map(function (document) {
+      return '<article class="record-item">' +
+        '<div><strong>' + escapeHtml(document.title) + '</strong><small>' + escapeHtml(document.document_type) + ' - ' + escapeHtml(document.file_name) + ' - ' + formatDate(document.uploaded_at) + '</small></div>' +
+      '</article>';
+    }).join('');
+  }
+
+  function renderQuestionnaire(questionnaire) {
+    if (!questionnaire) return '<p class="muted">No questionnaire started yet.</p>';
+    var answers = questionnaire.answers || {};
+    var html = '<article class="record-item"><strong>Status: ' + escapeHtml(questionnaire.status) + '</strong><small>Updated ' + formatDate(questionnaire.updated_at) + '</small></article>';
+    (questionnaire.questions || []).forEach(function (question) {
+      html += '<article class="record-item"><strong>' + escapeHtml(question.label) + '</strong><p>' + escapeHtml(answers[question.id] || '').replace(/\n/g, '<br>') + '</p></article>';
+    });
+    return html;
   }
 
   function formatDate(value) {

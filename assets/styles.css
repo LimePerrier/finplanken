@@ -277,6 +277,15 @@ form textarea{min-height:140px;resize:vertical}
 .portal-form label{margin-top:16px}
 .portal-status{margin-top:18px;color:var(--muted);font-size:14px;word-break:break-word}
 .portal-status a{color:var(--forest);font-weight:600;text-decoration:underline;text-decoration-color:var(--gold)}
+.client-portal-panel{width:min(100%,980px)}
+.portal-dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0}
+.portal-tile{border:1px solid var(--line);border-radius:8px;padding:18px;background:#fff}
+.portal-tile h2{font-size:24px;margin-bottom:10px}
+.portal-tile .btn{margin-top:4px}
+.portal-tile-wide{grid-column:1/-1}
+.questionnaire-form textarea{min-height:94px}
+.questionnaire-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+@media(max-width:760px){.portal-dashboard{grid-template-columns:1fr}}
 
 /* ---------- admin MVP ---------- */
 .admin-shell{max-width:1180px;margin:0 auto;padding:34px 24px 60px}

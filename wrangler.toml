@@ -6,3 +6,7 @@ pages_build_output_dir = "."
 binding = "DB"
 database_name = "bracket-planning-portal"
 database_id = "cdbdddb3-1a66-4b04-805a-41436fd6284e"
+
+[[r2_buckets]]
+binding = "CLIENT_FILES"
+bucket_name = "bracket-planning-client-files"

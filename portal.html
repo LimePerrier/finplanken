@@ -11,10 +11,20 @@
 </head>
 <body class="portal-body">
 <main class="portal-shell">
-  <section class="portal-panel portal-panel-wide">
+  <section class="portal-panel portal-panel-wide client-portal-panel">
     <a class="portal-logo" href="index.html">Bracket Planning</a>
     <h1>Client portal</h1>
     <p id="portal-message" class="muted">Checking your session...</p>
+    <div class="portal-dashboard">
+      <article class="portal-tile"><h2>Plan PDF</h2><div id="slot-plan_pdf" class="muted">Loading...</div></article>
+      <article class="portal-tile"><h2>Spreadsheet</h2><div id="slot-spreadsheet" class="muted">Loading...</div></article>
+      <article class="portal-tile"><h2>Word Document</h2><div id="slot-docx" class="muted">Loading...</div></article>
+      <article class="portal-tile portal-tile-wide">
+        <h2>Questionnaire</h2>
+        <form id="questionnaire-form" class="portal-form questionnaire-form"></form>
+        <div id="questionnaire-status" class="portal-status"></div>
+      </article>
+    </div>
     <button id="logout" class="btn ghost" type="button">Log out</button>
   </section>
 </main>
@@ -28,10 +38,76 @@
   }
   var data = await response.json();
   message.textContent = 'Logged in as ' + data.user.email + '.';
+  await loadDocuments();
+  await loadQuestionnaire();
   document.getElementById('logout').addEventListener('click', async function () {
     await fetch('/api/auth/logout', { method: 'POST' });
     window.location.href = 'login.html';
   });
+
+  async function loadDocuments() {
+    var response = await fetch('/api/client/documents');
+    if (!response.ok) return;
+    var data = await response.json();
+    var slots = { plan_pdf: [], spreadsheet: [], docx: [] };
+    data.documents.forEach(function (doc) { if (slots[doc.document_type]) slots[doc.document_type].push(doc); });
+    Object.keys(slots).forEach(function (type) {
+      var el = document.getElementById('slot-' + type);
+      if (!slots[type].length) {
+        el.textContent = 'Not uploaded yet.';
+        return;
+      }
+      el.innerHTML = slots[type].map(function (doc) {
+        return '<a class="btn ghost" href="/api/client/documents/' + encodeURIComponent(doc.id) + '/download">' + escapeHtml(doc.title) + '</a>';
+      }).join('');
+    });
+  }
+
+  async function loadQuestionnaire() {
+    var form = document.getElementById('questionnaire-form');
+    var status = document.getElementById('questionnaire-status');
+    var response = await fetch('/api/client/questionnaire');
+    if (!response.ok) {
+      status.textContent = 'Could not load questionnaire.';
+      return;
+    }
+    var data = await response.json();
+    var answers = data.response.answers || {};
+    form.innerHTML = data.questions.map(function (question) {
+      var value = escapeAttr(answers[question.id] || '');
+      var field = question.type === 'textarea'
+        ? '<textarea id="q-' + question.id + '">' + value + '</textarea>'
+        : '<input id="q-' + question.id + '" value="' + value + '">';
+      return '<label>' + escapeHtml(question.label) + field + '</label>';
+    }).join('') + '<div class="questionnaire-actions"><button class="btn ghost" type="button" id="save-questionnaire">Save Draft</button><button class="btn dark" type="submit">Submit Questionnaire</button></div>';
+    status.textContent = data.response.status === 'submitted' ? 'Submitted.' : 'Draft.';
+    document.getElementById('save-questionnaire').addEventListener('click', function () { saveQuestionnaire(false); });
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      saveQuestionnaire(true);
+    });
+    async function saveQuestionnaire(submit) {
+      var payload = {};
+      data.questions.forEach(function (question) {
+        payload[question.id] = document.getElementById('q-' + question.id).value;
+      });
+      status.textContent = submit ? 'Submitting...' : 'Saving...';
+      var response = await fetch('/api/client/questionnaire', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ answers: payload, submit: submit })
+      });
+      var result = await response.json();
+      status.textContent = response.ok ? (submit ? 'Submitted.' : 'Draft saved.') : (result.error || 'Could not save questionnaire.');
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (char) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+    });
+  }
+  function escapeAttr(value) { return escapeHtml(value); }
 })();
 </script>
 </body>

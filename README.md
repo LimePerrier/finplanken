@@ -40,19 +40,21 @@ This repo includes a minimal Cloudflare Pages client-portal workflow:
 
 - `admin-invite.html` creates a client invite.
 - `admin.html` lists clients, shows client records, suspends/reactivates login, and adds admin data.
+- Admin can upload client PDFs, spreadsheets, and Word documents to private R2 storage.
 - `accept-invite.html?token=...` lets the client set a password.
 - `login.html` signs the client in.
-- `portal.html` is the blank authenticated client portal shell.
+- `portal.html` lets clients download assigned documents and complete the intake questionnaire.
 
 Required Cloudflare setup:
 
 1. Create a D1 database and replace the placeholder `database_id` in `wrangler.toml`.
-2. Apply `schema.sql` to the D1 database. Re-run it after schema changes; it uses `if not exists` for safe additive setup.
-3. Add Cloudflare Pages environment variables:
+2. Create an R2 bucket named `bracket-planning-client-files` and bind it to Pages as `CLIENT_FILES`.
+3. Apply `schema.sql` to the D1 database. Re-run it after schema changes; it uses `if not exists` for safe additive setup.
+4. Add Cloudflare Pages environment variables:
    - `ADMIN_INVITE_TOKEN`: private token used by `admin-invite.html`
    - `APP_URL`: production site origin, for example `https://bracketplanning.ca`
    - `INVITE_FROM`: verified sender address for invite emails
-4. To send invite emails through Cloudflare Email Service, onboard the sending domain and add:
+5. To send invite emails through Cloudflare Email Service, onboard the sending domain and add:
    - `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
    - `CLOUDFLARE_EMAIL_API_TOKEN`: secret API token with Email Sending edit permission
 
