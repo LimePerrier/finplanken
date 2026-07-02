@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set Password - Bracket Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-portal">
+</head>
+<body class="portal-body">
+<main class="portal-shell">
+  <section class="portal-panel">
+    <a class="portal-logo" href="index.html">Bracket Planning</a>
+    <h1>Set your password</h1>
+    <p class="muted">Your email will be your username. Choose a password to finish setting up your portal account.</p>
+    <form id="accept-form" class="portal-form">
+      <label>New password<input id="password" type="password" autocomplete="new-password" minlength="10" required></label>
+      <label>Confirm password<input id="confirm-password" type="password" autocomplete="new-password" minlength="10" required></label>
+      <button class="btn dark" type="submit">Create account</button>
+    </form>
+    <div id="accept-status" class="portal-status" role="status"></div>
+  </section>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var inviteToken = params.get('token') || '';
+  var form = document.getElementById('accept-form');
+  var status = document.getElementById('accept-status');
+  if (!inviteToken) status.textContent = 'This invite link is missing a token.';
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var password = document.getElementById('password').value;
+    var confirm = document.getElementById('confirm-password').value;
+    if (password !== confirm) {
+      status.textContent = 'Passwords do not match.';
+      return;
+    }
+    status.textContent = 'Creating your account...';
+    var response = await fetch('/api/invites/accept', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: inviteToken, password: password })
+    });
+    var data = await response.json();
+    if (!response.ok) {
+      status.textContent = data.error || 'Could not accept invite.';
+      return;
+    }
+    window.location.href = 'portal.html';
+  });
+})();
+</script>
+</body>
+</html>

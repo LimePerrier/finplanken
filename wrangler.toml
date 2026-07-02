@@ -1,0 +1,11 @@
+name = "bracket-planning-site"
+compatibility_date = "2026-07-02"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bracket-planning-portal"
+database_id = "cdbdddb3-1a66-4b04-805a-41436fd6284e"
+
+[[send_email]]
+name = "EMAIL"

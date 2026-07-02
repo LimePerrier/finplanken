@@ -34,3 +34,21 @@ This repository **is** the site root, so deployment needs no build:
 - [ ] Wire the contact form to a handler (e.g. Web3Forms / Formspree)
 - [ ] Remove the gold "concept mockup" ribbon at the top of each page
 - [ ] Page titles / meta descriptions and a favicon
+
+## Portal MVP
+This repo includes a minimal Cloudflare Pages client-portal workflow:
+
+- `admin-invite.html` creates a client invite.
+- `accept-invite.html?token=...` lets the client set a password.
+- `login.html` signs the client in.
+- `portal.html` is the blank authenticated client portal shell.
+
+Required Cloudflare setup:
+
+1. Create a D1 database and replace the placeholder `database_id` in `wrangler.toml`.
+2. Apply `schema.sql` to the D1 database.
+3. Add Cloudflare Pages environment variables:
+   - `ADMIN_INVITE_TOKEN`: private token used by `admin-invite.html`
+   - `APP_URL`: production site origin, for example `https://bracketplanning.ca`
+   - `INVITE_FROM`: verified sender address for invite emails
+4. Configure the `EMAIL` binding if you want Cloudflare Email Service to send invites. Without it, the admin page still returns a test invite link.

@@ -265,6 +265,18 @@ form input:focus,form select:focus,form textarea:focus{outline:none;border-color
 form textarea{min-height:140px;resize:vertical}
 .form-note{font-size:13px;color:var(--muted);margin-top:14px}
 
+/* ---------- portal MVP ---------- */
+.portal-body{min-height:100vh;background:linear-gradient(135deg,var(--cream),#fffefb);color:var(--ink)}
+.portal-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:42px 22px}
+.portal-panel{width:min(100%,520px);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:38px;box-shadow:0 28px 60px -44px rgba(20,58,46,.55)}
+.portal-panel-wide{width:min(100%,720px)}
+.portal-logo{display:inline-block;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:700;color:var(--forest);margin-bottom:22px}
+.portal-panel h1{font-size:42px;margin-bottom:12px}
+.portal-form{margin-top:20px}
+.portal-form label{margin-top:16px}
+.portal-status{margin-top:18px;color:var(--muted);font-size:14px;word-break:break-word}
+.portal-status a{color:var(--forest);font-weight:600;text-decoration:underline;text-decoration-color:var(--gold)}
+
 /* about read more */
 .bio-more{margin-top:6px;border-top:1px solid var(--line);padding-top:18px}
 .bio-more summary{list-style:none;cursor:pointer;font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--forest);display:inline-flex;align-items:center;gap:10px}

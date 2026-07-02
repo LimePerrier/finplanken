@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Login - Bracket Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-portal">
+</head>
+<body class="portal-body">
+<main class="portal-shell">
+  <section class="portal-panel">
+    <a class="portal-logo" href="index.html">Bracket Planning</a>
+    <h1>Client login</h1>
+    <form id="login-form" class="portal-form">
+      <label>Email<input id="email" type="email" autocomplete="email" required></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn dark" type="submit">Log in</button>
+    </form>
+    <div id="login-status" class="portal-status" role="status"></div>
+  </section>
+</main>
+<script>
+(function () {
+  var form = document.getElementById('login-form');
+  var status = document.getElementById('login-status');
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    status.textContent = 'Logging in...';
+    var response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      })
+    });
+    var data = await response.json();
+    if (!response.ok) {
+      status.textContent = data.error || 'Could not log in.';
+      return;
+    }
+    window.location.href = 'portal.html';
+  });
+})();
+</script>
+</body>
+</html>

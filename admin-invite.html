@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invite Client - Bracket Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-portal">
+</head>
+<body class="portal-body">
+<main class="portal-shell">
+  <section class="portal-panel">
+    <a class="portal-logo" href="index.html">Bracket Planning</a>
+    <h1>Invite a client</h1>
+    <p class="muted">Create an invite link and email it to a new client. Keep this page private.</p>
+    <form id="invite-form" class="portal-form">
+      <label>Admin token<input id="admin-token" type="password" autocomplete="current-password" required></label>
+      <label>Client name<input id="client-name" type="text" autocomplete="name"></label>
+      <label>Client email<input id="client-email" type="email" autocomplete="email" required></label>
+      <button class="btn dark" type="submit">Send invite</button>
+    </form>
+    <div id="invite-status" class="portal-status" role="status"></div>
+  </section>
+</main>
+<script>
+(function () {
+  var form = document.getElementById('invite-form');
+  var status = document.getElementById('invite-status');
+  var token = document.getElementById('admin-token');
+  token.value = sessionStorage.getItem('bp_admin_token') || '';
+  form.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    status.textContent = 'Creating invite...';
+    sessionStorage.setItem('bp_admin_token', token.value);
+    var response = await fetch('/api/admin/invite', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': token.value },
+      body: JSON.stringify({
+        name: document.getElementById('client-name').value,
+        email: document.getElementById('client-email').value
+      })
+    });
+    var data = await response.json();
+    if (!response.ok) {
+      status.textContent = data.error || 'Could not create invite.';
+      return;
+    }
+    status.innerHTML = (data.emailSent ? 'Invite email sent.' : 'Email is not configured yet. Use this test link:') +
+      '<br><a href="' + data.inviteUrl + '">' + data.inviteUrl + '</a>';
+  });
+})();
+</script>
+</body>
+</html>
