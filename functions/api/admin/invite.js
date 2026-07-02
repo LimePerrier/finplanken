@@ -1,6 +1,10 @@
 import { appUrl, json, randomId, randomToken, readJson, requireAdmin, sha256 } from "../../_lib/auth.js";
 
 export async function onRequestPost({ request, env }) {
+  if (!env.ADMIN_INVITE_TOKEN) {
+    return json({ error: "ADMIN_INVITE_TOKEN is not configured for this deployment." }, { status: 500 });
+  }
+
   if (!requireAdmin(request, env)) {
     return json({ error: "Unauthorized" }, { status: 401 });
   }
