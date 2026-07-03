@@ -7,60 +7,678 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=20260702-portal">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-tooltip-only">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 </head>
-<body class="portal-body">
-<main class="portal-shell">
-  <section class="portal-panel portal-panel-wide client-portal-panel">
+<body class="portal-body portal-delivery-body">
+<header class="client-delivery-header">
+  <div>
     <a class="portal-logo" href="index.html">Bracket Planning</a>
-    <h1>Client portal</h1>
     <p id="portal-message" class="muted">Checking your session...</p>
-    <div class="portal-dashboard">
-      <article class="portal-tile"><h2>Plan PDF</h2><div id="slot-plan_pdf" class="muted">Loading...</div></article>
-      <article class="portal-tile"><h2>Spreadsheet</h2><div id="slot-spreadsheet" class="muted">Loading...</div></article>
-      <article class="portal-tile"><h2>Word Document</h2><div id="slot-docx" class="muted">Loading...</div></article>
-      <article class="portal-tile portal-tile-wide">
-        <h2>Questionnaire</h2>
-        <form id="questionnaire-form" class="portal-form questionnaire-form"></form>
-        <div id="questionnaire-status" class="portal-status"></div>
+  </div>
+  <button id="logout" class="btn ghost small-btn" type="button">Log out</button>
+</header>
+
+<main class="delivery-shell">
+  <nav class="delivery-tabs" aria-label="Client portal sections">
+    <button class="delivery-tab active" type="button" data-tab="dashboard">Dashboard</button>
+    <button class="delivery-tab" type="button" data-tab="commentary">Commentary</button>
+    <button class="delivery-tab" type="button" data-tab="report">Full Report</button>
+    <button class="delivery-tab" type="button" data-tab="questionnaire">Questionnaire</button>
+  </nav>
+
+  <section id="tab-dashboard" class="delivery-view active">
+    <div class="delivery-hero">
+      <div>
+        <p class="delivery-eyebrow">Personal Financial Plan</p>
+        <h1 id="client-name">Client Dashboard</h1>
+        <p class="delivery-subtitle">Planning scenario - retirement projection 2026-2067</p>
+      </div>
+      <div class="delivery-hero-meta">
+        <span>Horizon <b>42 years</b></span>
+        <span>Currency <b>CAD</b></span>
+        <span>Status <b>Current</b></span>
+      </div>
+    </div>
+
+    <div class="year-control">
+      <div>
+        <span class="metric-label">Selected Year</span>
+        <strong id="year-label">2026</strong>
+        <small id="age-label">Age 59</small>
+      </div>
+      <input id="year-slider" type="range" min="0" max="5" value="0">
+    </div>
+
+    <div id="metric-grid" class="metric-grid"></div>
+
+    <div class="delivery-grid">
+      <article class="delivery-panel cashflow-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Cash Flow</h2>
+            <p id="cashflow-sub" class="muted">Where money comes from and where it goes.</p>
+          </div>
+        </div>
+        <svg id="cashflow-sankey" class="cashflow-sankey" viewBox="0 0 900 430" role="img" aria-label="Cash flow Sankey chart"></svg>
+      </article>
+
+      <article class="delivery-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Next Milestones</h2>
+            <p class="muted">Planning events to keep in view.</p>
+          </div>
+        </div>
+        <div id="milestones" class="milestone-list"></div>
+      </article>
+
+      <article class="delivery-panel wide-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Net Worth Trajectory</h2>
+            <p class="muted">Net worth across the full plan - marker shows the selected year.</p>
+          </div>
+        </div>
+        <svg id="trend-chart" class="trend-chart" viewBox="0 0 900 280" role="img" aria-label="Net worth trajectory chart"></svg>
+        <div class="chart-legend">
+          <span><i class="legend-net-worth"></i>Net Worth</span>
+          <span><i class="legend-assets"></i>Financial Assets</span>
+          <span><i class="legend-selected"></i>Selected Year</span>
+        </div>
+      </article>
+
+      <article class="delivery-panel">
+        <h2>Plan Assumptions</h2>
+        <dl class="assumption-list">
+          <div><dt>Plan start</dt><dd>2026</dd></div>
+          <div><dt>Retirement age</dt><dd>65</dd></div>
+          <div><dt>Inflation</dt><dd>2.1%</dd></div>
+          <div><dt>Investment return</dt><dd>5.0%</dd></div>
+        </dl>
+      </article>
+
+      <article class="delivery-panel">
+        <h2>Client Source Files</h2>
+        <div id="source-files" class="source-files"></div>
       </article>
     </div>
-    <button id="logout" class="btn ghost" type="button">Log out</button>
+  </section>
+
+  <section id="tab-commentary" class="delivery-view">
+    <article class="delivery-panel document-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Planner Commentary</h2>
+          <p class="muted">Narrative recommendations and notes from the planning team.</p>
+        </div>
+        <div id="commentary-actions" class="doc-actions"></div>
+      </div>
+      <div id="commentary-preview" class="doc-preview">No commentary document has been uploaded yet.</div>
+    </article>
+  </section>
+
+  <section id="tab-report" class="delivery-view">
+    <article class="delivery-panel document-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Full Report</h2>
+          <p class="muted">Your full planning report and supporting workbook.</p>
+        </div>
+        <div id="report-actions" class="doc-actions"></div>
+      </div>
+      <div id="report-preview" class="doc-preview">No plan PDF has been uploaded yet.</div>
+    </article>
+  </section>
+
+  <section id="tab-questionnaire" class="delivery-view">
+    <article class="delivery-panel questionnaire-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Questionnaire</h2>
+          <p class="muted">Save a draft or submit your answers when ready.</p>
+        </div>
+        <span id="questionnaire-status" class="status-badge invited">Loading</span>
+      </div>
+      <form id="questionnaire-form" class="portal-form questionnaire-form"></form>
+    </article>
   </section>
 </main>
 <script>
 (async function () {
+  var state = {
+    user: null,
+    documents: [],
+    selectedIndex: 0,
+    planData: []
+  };
+
   var message = document.getElementById('portal-message');
   var response = await fetch('/api/auth/me');
   if (!response.ok) {
     window.location.href = 'login.html';
     return;
   }
-  var data = await response.json();
-  message.textContent = 'Logged in as ' + data.user.email + '.';
+
+  var session = await response.json();
+  state.user = session.user;
+  message.textContent = 'Logged in as ' + state.user.email + '.';
+  document.getElementById('client-name').textContent = displayName(state.user);
+
+  setupTabs();
+  setupLogout();
+  setupYearSlider();
+  await loadDashboard();
+  renderPlan();
   await loadDocuments();
   await loadQuestionnaire();
-  document.getElementById('logout').addEventListener('click', async function () {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    window.location.href = 'login.html';
-  });
+
+  function setupTabs() {
+    Array.prototype.forEach.call(document.querySelectorAll('.delivery-tab'), function (button) {
+      button.addEventListener('click', function () {
+        document.querySelector('.delivery-tab.active').classList.remove('active');
+        document.querySelector('.delivery-view.active').classList.remove('active');
+        button.classList.add('active');
+        document.getElementById('tab-' + button.dataset.tab).classList.add('active');
+      });
+    });
+  }
+
+  function setupLogout() {
+    document.getElementById('logout').addEventListener('click', async function () {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    });
+  }
+
+  function setupYearSlider() {
+    document.getElementById('year-slider').addEventListener('input', function (event) {
+      state.selectedIndex = Number(event.target.value);
+      renderPlan();
+    });
+  }
+
+  async function loadDashboard() {
+    var response = await fetch('/api/client/dashboard');
+    if (!response.ok) return;
+    var data = await response.json();
+    state.planData = data.planData || [];
+  }
+
+  function renderPlan() {
+    if (!state.planData.length) {
+      renderEmptyDashboard();
+      return;
+    }
+    var slider = document.getElementById('year-slider');
+    slider.max = String(state.planData.length - 1);
+    slider.value = String(state.selectedIndex);
+
+    var item = state.planData[state.selectedIndex];
+    var computed = calc(item);
+    var previous = state.selectedIndex ? state.planData[state.selectedIndex - 1] : null;
+    var netWorthDelta = previous ? item.netWorth - previous.netWorth : 0;
+    document.getElementById('year-label').textContent = item.year;
+    document.getElementById('age-label').textContent = 'Age ' + item.age;
+    document.getElementById('cashflow-sub').textContent = 'Sources and uses for ' + item.year + '.';
+    document.querySelector('.delivery-subtitle').textContent = 'Planning scenario - retirement projection ' + state.planData[0].year + '-' + state.planData[state.planData.length - 1].year;
+    document.querySelector('.delivery-hero-meta').innerHTML =
+      '<span>Horizon <b>' + state.planData.length + ' years</b></span>' +
+      '<span>Age Range <b>' + state.planData[0].age + '-' + state.planData[state.planData.length - 1].age + '</b></span>' +
+      '<span>Status <b>' + (item.employment > 0 ? 'Working' : 'Retired') + '</b></span>';
+
+    var metrics = [
+      ['Net Worth', item.netWorth, previous ? signedMoney(netWorthDelta) + ' vs ' + previous.year : 'Starting value'],
+      ['Financial Assets', computed.finAssets, 'RRSP ' + compactMoney(item.rrspVal) + ' - TFSA ' + compactMoney(item.tfsaVal) + ' - Non-Reg ' + compactMoney(item.nonRegVal)],
+      ['Total Income', computed.grossIncome, computed.withdrawals > 0 ? '+ ' + compactMoney(computed.withdrawals) + ' portfolio withdrawal' : (computed.savings > 0 ? 'Saving ' + compactMoney(computed.savings) + '/yr' : 'No portfolio flow')],
+      ['Living Expenses', computed.expenses, item.mortOwing > 0 ? 'Mortgage owing ' + compactMoney(item.mortOwing) : 'Mortgage-free'],
+      ['Income Tax', item.totalTaxPrem, 'Marginal ' + percent(item.marginal) + ' - Effective ' + percent(item.effective)],
+      ['Govt Benefits', computed.cppAll + computed.oasNet, computed.cppAll + computed.oasNet > 0 ? 'CPP ' + compactMoney(computed.cppAll) + ' - OAS ' + compactMoney(computed.oasNet) : 'Not yet started'],
+      ['Real Estate', item.realTotal, 'Principal residence'],
+      ['Estate After Tax', computed.estateAfterTax, 'Est. estate tax ' + compactMoney(item.taxOnEstate)]
+    ];
+
+    document.getElementById('metric-grid').innerHTML = metrics.map(function (metric) {
+      return '<article class="metric-card"><span>' + metric[0] + '</span><strong>' + money(metric[1]) + '</strong><small>' + metric[2] + '</small></article>';
+    }).join('');
+
+    renderCashflow(item, computed);
+    renderMilestones(item);
+    renderTrend();
+  }
+
+  function renderEmptyDashboard() {
+    document.getElementById('metric-grid').innerHTML = '<article class="metric-card dashboard-empty"><span>Dashboard</span><strong>No spreadsheet yet</strong><small>Upload the client projection workbook from the admin portal to populate this dashboard.</small></article>';
+    document.getElementById('cashflow-sankey').innerHTML = '<text x="32" y="58">No dashboard data has been uploaded yet.</text>';
+    document.getElementById('milestones').innerHTML = '<p class="muted">No milestones available yet.</p>';
+    document.getElementById('trend-chart').innerHTML = '';
+  }
+
+  function renderCashflow(item, computed) {
+    var max = Math.max(computed.grossIncome + computed.withdrawals, computed.expenses + item.totalTaxPrem + computed.savings + item.mortPaid, 1);
+    var sources = [
+      { label: 'Employment', value: item.employment, color: '#1d5141' },
+      { label: 'Other Income', value: item.otherInc, color: '#6b8f7e' },
+      { label: 'Dividends', value: computed.dividends, color: '#3c7c68' },
+      { label: 'CPP', value: computed.cppAll, color: '#bd9444' },
+      { label: 'OAS', value: computed.oasNet, color: '#c79a4e' },
+      { label: 'Portfolio Withdrawals', value: computed.withdrawals, color: '#a8553f' }
+    ].filter(function (row) { return row.value > 0.5; });
+    var uses = [
+      { label: 'Living Expenses', value: computed.expenses, color: '#bd9444' },
+      { label: 'Income Tax', value: item.totalTaxPrem, color: '#a8553f' },
+      { label: 'Portfolio Savings', value: computed.savings, color: '#3c7c68' },
+      { label: 'Mortgage / Debt', value: item.mortPaid, color: '#5b8a8a' }
+    ].filter(function (row) { return row.value > 0.5; });
+    renderSankey(sources, uses, max);
+  }
+
+  function renderSankey(sources, uses, max) {
+    var svg = document.getElementById('cashflow-sankey');
+    if (window.d3 && window.d3.sankey && window.d3.sankeyLinkHorizontal) {
+      var d3 = window.d3;
+      var d3Width = 900;
+      var d3Height = 430;
+      var hub = 'Total Cash Flow';
+      var nodeColor = {};
+      var names = sources.map(function (row) { return row.label; }).concat([hub], uses.map(function (row) { return row.label; }));
+      var indexByName = {};
+      sources.concat(uses).forEach(function (row) {
+        nodeColor[row.label] = row.color;
+      });
+      nodeColor[hub] = '#8a9a8f';
+      names.forEach(function (name, index) {
+        indexByName[name] = index;
+      });
+      var graph = {
+        nodes: names.map(function (name) { return { name: name }; }),
+        links: sources.map(function (row) {
+          return { source: indexByName[row.label], target: indexByName[hub], value: row.value, color: row.color };
+        }).concat(uses.map(function (row) {
+          return { source: indexByName[hub], target: indexByName[row.label], value: row.value, color: row.color };
+        }))
+      };
+      svg.setAttribute('viewBox', '0 0 ' + d3Width + ' ' + d3Height);
+      var chart = d3.select(svg);
+      chart.selectAll('*').remove();
+      d3.sankey()
+        .nodeWidth(14)
+        .nodePadding(15)
+        .extent([[6, 10], [d3Width - 6, d3Height - 10]])(graph);
+
+      chart.append('g')
+        .selectAll('path')
+        .data(graph.links)
+        .join('path')
+        .attr('class', 'sankey-link')
+        .attr('d', d3.sankeyLinkHorizontal())
+        .attr('stroke', function (d) { return d.color; })
+        .attr('stroke-width', function (d) { return Math.max(1, d.width); });
+
+      var nodes = chart.append('g')
+        .selectAll('g')
+        .data(graph.nodes)
+        .join('g')
+        .attr('class', 'sankey-node-group');
+
+      nodes.append('rect')
+        .attr('class', function (d) { return d.name === hub ? 'sankey-node hub' : 'sankey-node'; })
+        .attr('x', function (d) { return d.x0; })
+        .attr('y', function (d) { return d.y0; })
+        .attr('height', function (d) { return Math.max(2, d.y1 - d.y0); })
+        .attr('width', function (d) { return d.x1 - d.x0; })
+        .attr('fill', function (d) { return nodeColor[d.name]; })
+        .attr('rx', 3);
+
+      nodes.append('text')
+        .attr('class', 'sankey-label')
+        .attr('x', function (d) { return d.x0 < d3Width / 2 ? d.x1 + 8 : d.x0 - 8; })
+        .attr('y', function (d) { return (d.y0 + d.y1) / 2 - 3; })
+        .attr('text-anchor', function (d) { return d.x0 < d3Width / 2 ? 'start' : 'end'; })
+        .text(function (d) { return d.name; });
+
+      nodes.append('text')
+        .attr('class', 'sankey-amount')
+        .attr('x', function (d) { return d.x0 < d3Width / 2 ? d.x1 + 8 : d.x0 - 8; })
+        .attr('y', function (d) { return (d.y0 + d.y1) / 2 + 11; })
+        .attr('text-anchor', function (d) { return d.x0 < d3Width / 2 ? 'start' : 'end'; })
+        .text(function (d) { return compactMoney(d.value || 0); });
+      return;
+    }
+
+    var width = 900;
+    var height = 360;
+    var nodeWidth = 16;
+    var leftX = 36;
+    var hubX = 442;
+    var rightX = 848;
+    var scale = 210 / max;
+    var sourceNodes = layoutSankeyNodes(sources, 28, height, scale);
+    var useNodes = layoutSankeyNodes(uses, 28, height, scale);
+    var hubHeight = Math.max(72, Math.min(230, Math.max(totalValue(sources), totalValue(uses)) * scale));
+    var hubY = (height - hubHeight) / 2;
+    var html = '';
+
+    sourceNodes.forEach(function (node) {
+      var linkHeight = Math.max(4, node.value * scale);
+      html += sankeyPath(leftX + nodeWidth, node.y + node.height / 2, hubX, hubY + hubHeight / 2, linkHeight, node.color, 'source');
+    });
+    useNodes.forEach(function (node) {
+      var linkHeight = Math.max(4, node.value * scale);
+      html += sankeyPath(hubX + nodeWidth, hubY + hubHeight / 2, rightX, node.y + node.height / 2, linkHeight, node.color, 'use');
+    });
+
+    html += sankeyNode(leftX, sourceNodes);
+    html += '<rect class="sankey-node hub" x="' + hubX + '" y="' + hubY + '" width="' + nodeWidth + '" height="' + hubHeight + '" rx="4"></rect>';
+    html += '<text class="sankey-label hub-label" x="' + (hubX + nodeWidth / 2) + '" y="' + (hubY - 12) + '" text-anchor="middle">Total Cash Flow</text>';
+    html += '<text class="sankey-amount hub-label" x="' + (hubX + nodeWidth / 2) + '" y="' + (hubY + hubHeight + 24) + '" text-anchor="middle">' + compactMoney(Math.max(totalValue(sources), totalValue(uses))) + '</text>';
+    html += sankeyNode(rightX, useNodes, true);
+    svg.innerHTML = html;
+  }
+
+  function layoutSankeyNodes(items, top, height, scale) {
+    var gap = 16;
+    var nodes = items.map(function (item) {
+      return Object.assign({}, item, { height: Math.max(18, item.value * scale) });
+    });
+    var totalHeight = nodes.reduce(function (sum, node) { return sum + node.height; }, 0) + gap * Math.max(0, nodes.length - 1);
+    var y = Math.max(top, (height - totalHeight) / 2);
+    nodes.forEach(function (node) {
+      node.y = y;
+      y += node.height + gap;
+    });
+    return nodes;
+  }
+
+  function sankeyPath(x1, y1, x2, y2, strokeWidth, color, type) {
+    var c1 = x1 + (x2 - x1) * 0.48;
+    var c2 = x1 + (x2 - x1) * 0.52;
+    return '<path class="sankey-link ' + type + '" d="M' + x1 + ' ' + y1 + ' C' + c1 + ' ' + y1 + ', ' + c2 + ' ' + y2 + ', ' + x2 + ' ' + y2 + '" stroke="' + color + '" stroke-width="' + strokeWidth + '"></path>';
+  }
+
+  function sankeyNode(x, nodes, rightSide) {
+    return nodes.map(function (node) {
+      var labelX = rightSide ? x - 12 : x + 28;
+      var anchor = rightSide ? 'end' : 'start';
+      return '<rect class="sankey-node" x="' + x + '" y="' + node.y + '" width="16" height="' + node.height + '" rx="4" fill="' + node.color + '"></rect>' +
+        '<text class="sankey-label" x="' + labelX + '" y="' + (node.y + node.height / 2 - 3) + '" text-anchor="' + anchor + '">' + escapeHtml(node.label) + '</text>' +
+        '<text class="sankey-amount" x="' + labelX + '" y="' + (node.y + node.height / 2 + 14) + '" text-anchor="' + anchor + '">' + compactMoney(node.value) + '</text>';
+    }).join('');
+  }
+
+  function totalValue(items) {
+    return items.reduce(function (sum, item) { return sum + item.value; }, 0);
+  }
+
+  function renderMilestones(item) {
+    var milestones = buildMilestones();
+    if (!milestones.length) {
+      document.getElementById('milestones').innerHTML = '<p class="muted">No major structural milestones detected.</p>';
+      return;
+    }
+    document.getElementById('milestones').innerHTML = milestones.map(function (milestone) {
+      var active = item.year >= milestone.year ? ' reached' : '';
+      return '<div class="milestone' + active + '"><span>' + milestone.year + '</span><div><b>' + milestone.title + '</b><p>' + milestone.text + '</p></div></div>';
+    }).slice(0, 4).join('');
+  }
+
+  function renderTrend() {
+    var svg = document.getElementById('trend-chart');
+    var values = state.planData;
+    if (window.d3) {
+      var d3 = window.d3;
+      var bounds = svg.getBoundingClientRect();
+      var d3Width = Math.max(600, Math.round(bounds.width || 900));
+      var d3Height = 280;
+      var margin = { top: 18, right: 14, bottom: 38, left: 56 };
+      var minYear = values[0].year;
+      var maxYear = values[values.length - 1].year;
+      var xScale = d3.scaleLinear().domain([minYear, maxYear]).range([margin.left, d3Width - margin.right]);
+      var yMax = d3.max(values, function (row) { return row.netWorth; }) * 1.08;
+      var yScale = d3.scaleLinear().domain([0, yMax]).range([d3Height - margin.bottom, margin.top]).nice();
+      svg.setAttribute('viewBox', '0 0 ' + d3Width + ' ' + d3Height);
+      var chart = d3.select(svg);
+      chart.selectAll('*').remove();
+
+      var yTicks = yScale.ticks(5);
+      chart.append('g')
+        .attr('class', 'trend-grid')
+        .selectAll('line')
+        .data(yTicks)
+        .join('line')
+        .attr('x1', margin.left)
+        .attr('x2', d3Width - margin.right)
+        .attr('y1', function (tick) { return yScale(tick); })
+        .attr('y2', function (tick) { return yScale(tick); });
+
+      chart.append('g')
+        .attr('class', 'trend-axis')
+        .selectAll('text')
+        .data(yTicks)
+        .join('text')
+        .attr('x', margin.left - 10)
+        .attr('y', function (tick) { return yScale(tick) + 3; })
+        .attr('text-anchor', 'end')
+        .text(function (tick) { return compactMoney(tick); });
+
+      var area = d3.area()
+        .x(function (row) { return xScale(row.year); })
+        .y0(d3Height - margin.bottom)
+        .y1(function (row) { return yScale(row.netWorth); })
+        .curve(d3.curveMonotoneX);
+      var netWorthLine = d3.line()
+        .x(function (row) { return xScale(row.year); })
+        .y(function (row) { return yScale(row.netWorth); })
+        .curve(d3.curveMonotoneX);
+      var assetLine = d3.line()
+        .x(function (row) { return xScale(row.year); })
+        .y(function (row) { return yScale(row.allTypesVal); })
+        .curve(d3.curveMonotoneX);
+
+      var gradient = chart.append('defs')
+        .append('linearGradient')
+        .attr('id', 'trend-net-worth-gradient')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', 1);
+      gradient.append('stop').attr('offset', '0%').attr('stop-color', '#1d5141').attr('stop-opacity', 0.32);
+      gradient.append('stop').attr('offset', '100%').attr('stop-color', '#1d5141').attr('stop-opacity', 0);
+
+      chart.append('path').datum(values).attr('class', 'chart-area').attr('d', area).attr('fill', 'url(#trend-net-worth-gradient)');
+      chart.append('path').datum(values).attr('class', 'chart-line assets').attr('d', assetLine);
+      chart.append('path').datum(values).attr('class', 'chart-line').attr('d', netWorthLine);
+
+      chart.append('line')
+        .attr('class', 'trend-axis-base')
+        .attr('x1', margin.left)
+        .attr('x2', d3Width - margin.right)
+        .attr('y1', d3Height - margin.bottom)
+        .attr('y2', d3Height - margin.bottom);
+
+      var ageByYear = {};
+      values.forEach(function (row) { ageByYear[row.year] = row.age; });
+      var tickYears = [];
+      for (var year = minYear; year <= maxYear; year += 7) tickYears.push(year);
+      if (tickYears[tickYears.length - 1] !== maxYear) tickYears.push(maxYear);
+      var xAxis = chart.append('g').attr('class', 'trend-axis');
+      tickYears.forEach(function (year) {
+        xAxis.append('line')
+          .attr('class', 'trend-axis-base')
+          .attr('x1', xScale(year))
+          .attr('x2', xScale(year))
+          .attr('y1', d3Height - margin.bottom)
+          .attr('y2', d3Height - margin.bottom + 5);
+        xAxis.append('text')
+          .attr('x', xScale(year))
+          .attr('y', d3Height - margin.bottom + 18)
+          .attr('text-anchor', 'middle')
+          .text(year);
+        xAxis.append('text')
+          .attr('x', xScale(year))
+          .attr('y', d3Height - margin.bottom + 30)
+          .attr('text-anchor', 'middle')
+          .attr('opacity', 0.75)
+          .text('age ' + ageByYear[year]);
+      });
+
+      var selected = values[state.selectedIndex];
+      var selectedX = xScale(selected.year);
+      var selectedY = yScale(selected.netWorth);
+      chart.append('line')
+        .attr('class', 'trend-selected-line')
+        .attr('x1', selectedX)
+        .attr('x2', selectedX)
+        .attr('y1', margin.top)
+        .attr('y2', d3Height - margin.bottom);
+      chart.append('circle')
+        .attr('class', 'chart-dot')
+        .attr('cx', selectedX)
+        .attr('cy', selectedY)
+        .attr('r', 4.5);
+      var label = compactMoney(selected.netWorth);
+      var labelWidth = label.length * 6.6 + 12;
+      var labelX = Math.max(margin.left + labelWidth / 2, Math.min(d3Width - margin.right - labelWidth / 2, selectedX));
+      chart.append('rect')
+        .attr('class', 'trend-label-bg')
+        .attr('x', labelX - labelWidth / 2)
+        .attr('y', selectedY - 24)
+        .attr('width', labelWidth)
+        .attr('height', 16)
+        .attr('rx', 3);
+      chart.append('text')
+        .attr('class', 'trend-label')
+        .attr('x', labelX)
+        .attr('y', selectedY - 12)
+        .attr('text-anchor', 'middle')
+        .text(label);
+      return;
+    }
+
+    var width = 900;
+    var height = 280;
+    var pad = 44;
+    var max = Math.max.apply(null, values.map(function (x) { return Math.max(x.netWorth, x.allTypesVal); }));
+    var minYear = values[0].year;
+    var maxYear = values[values.length - 1].year;
+    function x(year) { return pad + ((year - minYear) / (maxYear - minYear)) * (width - pad * 2); }
+    function y(value) { return height - pad - (value / max) * (height - pad * 2); }
+    function line(key) {
+      return values.map(function (point, index) {
+        return (index ? 'L' : 'M') + x(point.year).toFixed(1) + ' ' + y(point[key]).toFixed(1);
+      }).join(' ');
+    }
+    var selected = values[state.selectedIndex];
+    svg.innerHTML =
+      '<path class="chart-grid" d="M' + pad + ' ' + (height - pad) + 'H' + (width - pad) + '"></path>' +
+      '<path class="chart-area" d="' + line('netWorth') + ' L' + x(values[values.length - 1].year) + ' ' + (height - pad) + ' L' + x(values[0].year) + ' ' + (height - pad) + ' Z"></path>' +
+      '<path class="chart-line assets" d="' + line('allTypesVal') + '"></path>' +
+      '<path class="chart-line" d="' + line('netWorth') + '"></path>' +
+      '<circle class="chart-dot" cx="' + x(selected.year) + '" cy="' + y(selected.netWorth) + '" r="8"></circle>' +
+      '<text x="' + x(selected.year) + '" y="' + (y(selected.netWorth) - 18) + '" text-anchor="middle">' + selected.year + ' - ' + money(selected.netWorth) + '</text>';
+  }
+
+  function calc(item) {
+    var dividends = item.divNonElig + item.divElig;
+    var cppAll = item.cpp + (item.cppSurv || 0);
+    var oasNet = item.oas - item.oasClawback;
+    var expenses = item.expBase + item.expAdd;
+    var netContrib = item.allTypesContrib;
+    var withdrawals = netContrib < 0 ? -netContrib : 0;
+    var savings = netContrib > 0 ? netContrib : 0;
+    var earnedIncome = item.employment + item.otherInc + dividends;
+    var grossIncome = earnedIncome + cppAll + oasNet;
+    var estateAfterTax = item.estateBeforeTax - item.taxOnEstate;
+    return { dividends: dividends, cppAll: cppAll, oasNet: oasNet, expenses: expenses, withdrawals: withdrawals, savings: savings, grossIncome: grossIncome, finAssets: item.allTypesVal, estateAfterTax: estateAfterTax };
+  }
+
+  function buildMilestones() {
+    var milestones = [];
+    function push(item, title, text) {
+      milestones.push({ year: item.year, title: title, text: text });
+    }
+    for (var i = 1; i < state.planData.length; i++) {
+      var previous = state.planData[i - 1];
+      var item = state.planData[i];
+      if (previous.employment > 0 && item.employment === 0) {
+        push(item, 'Retirement - employment income ends', 'The plan shifts from saving to drawing on benefits and portfolio assets.');
+      }
+      if (previous.cpp === 0 && item.cpp > 0) {
+        push(item, 'CPP begins', 'Canada Pension Plan starts paying ' + money(item.cpp) + ' per year.');
+      }
+      if (previous.oas === 0 && item.oas > 0) {
+        push(item, 'OAS begins', 'Old Age Security starts at ' + money(item.oas) + ' per year.');
+      }
+      if (previous.mortOwing > 0 && item.mortOwing === 0) {
+        push(item, 'Mortgage paid off', 'The mortgage is fully repaid, freeing roughly ' + money(previous.mortPaid) + ' per year of cash flow.');
+      }
+      if (previous.allTypesContrib >= 0 && item.allTypesContrib < 0) {
+        push(item, 'Portfolio drawdown begins', 'Net withdrawals from investments begin at ' + money(-item.allTypesContrib) + ' this year.');
+      }
+      if (previous.rrspContrib >= 0 && item.rrspContrib < 0) {
+        push(item, 'RRIF withdrawals begin', 'Mandatory RRSP/RRIF withdrawals start at ' + money(-item.rrspContrib) + ' this year.');
+      }
+      if (previous.oasClawback === 0 && item.oasClawback > 0) {
+        push(item, 'OAS clawback begins', 'Income crosses the OAS recovery threshold; clawback of ' + money(item.oasClawback) + ' applies.');
+      }
+    }
+    return milestones;
+  }
 
   async function loadDocuments() {
     var response = await fetch('/api/client/documents');
     if (!response.ok) return;
     var data = await response.json();
-    var slots = { plan_pdf: [], spreadsheet: [], docx: [] };
-    data.documents.forEach(function (doc) { if (slots[doc.document_type]) slots[doc.document_type].push(doc); });
-    Object.keys(slots).forEach(function (type) {
-      var el = document.getElementById('slot-' + type);
-      if (!slots[type].length) {
-        el.textContent = 'Not uploaded yet.';
-        return;
-      }
-      el.innerHTML = slots[type].map(function (doc) {
-        return '<a class="btn ghost" href="/api/client/documents/' + encodeURIComponent(doc.id) + '/download">' + escapeHtml(doc.title) + '</a>';
-      }).join('');
+    state.documents = data.documents || [];
+    renderDocuments();
+  }
+
+  function renderDocuments() {
+    var byType = { plan_pdf: [], docx: [] };
+    state.documents.forEach(function (doc) {
+      if (byType[doc.document_type]) byType[doc.document_type].push(doc);
     });
+    renderSourceFiles(byType);
+    renderCommentary(byType.docx[0]);
+    renderReport(byType.plan_pdf[0]);
+  }
+
+  function renderSourceFiles(byType) {
+    var files = [
+      ['Plan PDF', byType.plan_pdf[0]],
+      ['Commentary DOCX', byType.docx[0]]
+    ];
+    document.getElementById('source-files').innerHTML = files.map(function (file) {
+      var doc = file[1];
+      if (!doc) return '<div class="file-tile empty"><span>' + file[0] + '</span><b>Not uploaded yet</b></div>';
+      return '<a class="file-tile" href="' + downloadUrl(doc) + '"><span>' + file[0] + '</span><b>' + escapeHtml(doc.title) + '</b><small>' + escapeHtml(doc.file_name || '') + '</small></a>';
+    }).join('');
+  }
+
+  function renderCommentary(doc) {
+    var actions = document.getElementById('commentary-actions');
+    var preview = document.getElementById('commentary-preview');
+    if (!doc) {
+      actions.innerHTML = '';
+      preview.textContent = 'No commentary document has been uploaded yet.';
+      return;
+    }
+    actions.innerHTML = '<a class="btn dark" href="' + downloadUrl(doc) + '">Open DOCX</a><a class="btn ghost" href="' + downloadUrl(doc) + '" download>Download</a>';
+    preview.innerHTML = '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>Word documents download directly. Add a PDF commentary copy later if you want an in-browser preview.</p></div>';
+  }
+
+  function renderReport(pdf) {
+    var actions = document.getElementById('report-actions');
+    var preview = document.getElementById('report-preview');
+    var buttons = [];
+    if (pdf) buttons.push('<a class="btn dark" href="' + downloadUrl(pdf) + '">Open PDF</a>');
+    actions.innerHTML = buttons.join('');
+    if (pdf) {
+      preview.innerHTML = '<iframe class="doc-frame" src="' + downloadUrl(pdf) + '" title="Full report PDF preview"></iframe>';
+    } else {
+      preview.textContent = 'No plan PDF has been uploaded yet.';
+    }
   }
 
   async function loadQuestionnaire() {
@@ -68,20 +686,30 @@
     var status = document.getElementById('questionnaire-status');
     var response = await fetch('/api/client/questionnaire');
     if (!response.ok) {
-      status.textContent = 'Could not load questionnaire.';
+      status.textContent = 'Unavailable';
+      form.innerHTML = '<p class="muted">Could not load questionnaire.</p>';
       return;
     }
     var data = await response.json();
     var answers = data.response.answers || {};
     form.innerHTML = data.questions.map(function (question) {
-      var value = escapeAttr(answers[question.id] || '');
-      var field = question.type === 'textarea'
-        ? '<textarea id="q-' + question.id + '">' + value + '</textarea>'
-        : '<input id="q-' + question.id + '" value="' + value + '">';
-      return '<label>' + escapeHtml(question.label) + field + '</label>';
+      return renderQuestion(question, answers[question.id]);
     }).join('') + '<div class="questionnaire-actions"><button class="btn ghost" type="button" id="save-questionnaire">Save Draft</button><button class="btn dark" type="submit">Submit Questionnaire</button></div>';
-    status.textContent = data.response.status === 'submitted' ? 'Submitted.' : 'Draft.';
+    setQuestionnaireStatus(data.response.status);
     document.getElementById('save-questionnaire').addEventListener('click', function () { saveQuestionnaire(false); });
+    form.addEventListener('click', function (event) {
+      var addButton = event.target.closest('[data-add-row]');
+      var removeButton = event.target.closest('[data-remove-row]');
+      if (addButton) {
+        var question = data.questions.find(function (item) { return item.id === addButton.dataset.addRow; });
+        var container = document.getElementById('q-' + question.id);
+        var count = container.querySelectorAll('.repeat-row').length;
+        container.insertAdjacentHTML('beforeend', renderRepeatRow(question, {}, count));
+      }
+      if (removeButton) {
+        removeButton.closest('.repeat-row').remove();
+      }
+    });
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       saveQuestionnaire(true);
@@ -89,19 +717,110 @@
     async function saveQuestionnaire(submit) {
       var payload = {};
       data.questions.forEach(function (question) {
-        payload[question.id] = document.getElementById('q-' + question.id).value;
+        if (question.type === 'section') return;
+        payload[question.id] = collectAnswer(question);
       });
-      status.textContent = submit ? 'Submitting...' : 'Saving...';
+      status.textContent = submit ? 'Submitting' : 'Saving';
       var response = await fetch('/api/client/questionnaire', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ answers: payload, submit: submit })
       });
       var result = await response.json();
-      status.textContent = response.ok ? (submit ? 'Submitted.' : 'Draft saved.') : (result.error || 'Could not save questionnaire.');
+      if (response.ok) setQuestionnaireStatus(submit ? 'submitted' : 'draft');
+      else status.textContent = result.error || 'Could not save';
     }
   }
 
+  function renderQuestion(question, answer) {
+    if (question.type === 'section') {
+      return '<div class="question-section"><h3>' + escapeHtml(question.label) + '</h3></div>';
+    }
+    if (question.type === 'repeater') {
+      var rows = Array.isArray(answer) && answer.length ? answer : [{}];
+      return '<fieldset class="repeat-question"><legend>' + escapeHtml(question.label) + renderHelp(question.help) + '</legend>' +
+        '<div id="q-' + question.id + '" class="repeat-rows">' + rows.map(function (row, index) {
+          return renderRepeatRow(question, row, index);
+        }).join('') + '</div>' +
+        '<button class="btn ghost small-btn" type="button" data-add-row="' + escapeAttr(question.id) + '">' + escapeHtml(question.addLabel || 'Add row') + '</button>' +
+      '</fieldset>';
+    }
+    var value = String(answer || '');
+    var field = question.type === 'textarea'
+      ? '<textarea id="q-' + question.id + '" data-question="' + escapeAttr(question.id) + '">' + escapeHtml(value) + '</textarea>'
+      : '<input id="q-' + question.id + '" data-question="' + escapeAttr(question.id) + '" value="' + escapeAttr(value) + '">';
+    return '<label class="question-field">' + escapeHtml(question.label) + renderHelp(question.help) + (question.required ? ' <span class="required-mark">Required</span>' : '') + field + '</label>';
+  }
+
+  function renderRepeatRow(question, row, index) {
+    row = row || {};
+    return '<div class="repeat-row" data-row="' + index + '">' +
+      '<div class="repeat-row-head"><b>' + escapeHtml(question.label) + ' #' + (index + 1) + '</b><button type="button" class="text-button" data-remove-row>Remove</button></div>' +
+      '<div class="repeat-fields">' + question.fields.map(function (field) {
+        return '<label>' + escapeHtml(field.label) + renderHelp(field.help) + '<input data-repeat="' + escapeAttr(question.id) + '" data-field="' + escapeAttr(field.id) + '" value="' + escapeAttr(row[field.id] || '') + '"></label>';
+      }).join('') + '</div>' +
+    '</div>';
+  }
+
+  function renderHelp(help) {
+    if (!help) return '';
+    return '<span class="field-help" tabindex="0" aria-label="' + escapeAttr(help) + '">?<span role="tooltip">' + escapeHtml(help) + '</span></span>';
+  }
+
+  function collectAnswer(question) {
+    if (question.type === 'repeater') {
+      var container = document.getElementById('q-' + question.id);
+      return Array.prototype.map.call(container.querySelectorAll('.repeat-row'), function (row) {
+        var item = {};
+        question.fields.forEach(function (field) {
+          var input = row.querySelector('[data-field="' + field.id + '"]');
+          item[field.id] = input ? input.value : '';
+        });
+        return item;
+      }).filter(function (row) {
+        return Object.keys(row).some(function (key) { return String(row[key] || '').trim(); });
+      });
+    }
+    var input = document.getElementById('q-' + question.id);
+    return input ? input.value : '';
+  }
+
+  function setQuestionnaireStatus(value) {
+    var status = document.getElementById('questionnaire-status');
+    status.className = 'status-badge ' + (value === 'submitted' ? 'active' : 'invited');
+    status.textContent = value === 'submitted' ? 'Submitted' : 'Draft';
+  }
+
+  function downloadUrl(doc) {
+    return '/api/client/documents/' + encodeURIComponent(doc.id) + '/download';
+  }
+  function money(value) {
+    return '$' + Math.round(value).toLocaleString('en-CA');
+  }
+  function signedMoney(value) {
+    return (value >= 0 ? '+' : '-') + money(Math.abs(value));
+  }
+  function compactMoney(value) {
+    var amount = Math.abs(value);
+    var suffix = '';
+    var number = amount;
+    if (amount >= 1000000) {
+      number = amount / 1000000;
+      suffix = 'M';
+    } else if (amount >= 1000) {
+      number = amount / 1000;
+      suffix = 'K';
+    }
+    var formatted = suffix === 'M' ? number.toFixed(2) : Math.round(number);
+    return (value < 0 ? '-' : '') + '$' + formatted + suffix;
+  }
+  function percent(value) {
+    return Math.round(Number(value || 0) * 100) + '%';
+  }
+  function displayName(user) {
+    if (user.name) return user.name;
+    return String(user.email || 'Client').split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, function (char) { return char.toUpperCase(); });
+  }
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"']/g, function (char) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];

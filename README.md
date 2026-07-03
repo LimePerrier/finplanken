@@ -40,10 +40,10 @@ This repo includes a minimal Cloudflare Pages client-portal workflow:
 
 - `admin-invite.html` creates a client invite.
 - `admin.html` lists clients, shows client records, suspends/reactivates login, and adds admin data.
-- Admin can upload client PDFs, spreadsheets, and Word documents to private R2 storage.
+- Admin can upload client PDFs, spreadsheets, and Word documents to private R2 storage. Spreadsheet uploads are parsed into dashboard data for the client portal; the spreadsheet itself stays admin-only.
 - `accept-invite.html?token=...` lets the client set a password.
 - `login.html` signs the client in.
-- `portal.html` lets clients download assigned documents and complete the intake questionnaire.
+- `portal.html` shows the client dashboard, lets clients view assigned PDF/DOCX documents, and lets clients complete the intake questionnaire.
 
 Required Cloudflare setup:
 

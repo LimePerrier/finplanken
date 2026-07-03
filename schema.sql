@@ -50,6 +50,15 @@ create table if not exists client_documents (
   uploaded_at text not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
+create table if not exists client_dashboard_data (
+  id text primary key,
+  user_id text not null references users(id) on delete cascade,
+  source_document_id text references client_documents(id) on delete set null,
+  plan_data_json text not null,
+  created_at text not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+  updated_at text not null default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
 create table if not exists questionnaire_responses (
   id text primary key,
   user_id text not null references users(id) on delete cascade,
@@ -65,4 +74,5 @@ create index if not exists idx_sessions_token_hash on sessions(token_hash);
 create index if not exists idx_users_email on users(email);
 create index if not exists idx_client_records_user_id on client_records(user_id);
 create index if not exists idx_client_documents_user_id on client_documents(user_id);
+create index if not exists idx_client_dashboard_data_user_id on client_dashboard_data(user_id);
 create index if not exists idx_questionnaire_responses_user_id on questionnaire_responses(user_id);

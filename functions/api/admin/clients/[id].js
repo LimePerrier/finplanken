@@ -32,7 +32,9 @@ export async function onRequestGet({ request, env, params }) {
     records: records.results || [],
     invites: invites.results || [],
     documents: documents.results || [],
-    questionnaire: questionnaire ? { ...questionnaire, questions, answers: JSON.parse(questionnaire.answers_json || "{}") } : null,
+    questionnaire: questionnaire
+      ? { ...questionnaire, questions, answers: JSON.parse(questionnaire.answers_json || "{}") }
+      : { id: null, status: "draft", answers: {}, submitted_at: null, updated_at: null, questions },
   });
 }
 

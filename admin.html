@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=20260702-admin">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-admin-questionnaire">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="portal-body">
 <main class="admin-shell">
@@ -128,7 +129,7 @@
         '<h3>Client documents</h3>' +
         '<div class="record-list">' + renderDocuments(data.documents, client.id) + '</div>' +
         '<h3>Questionnaire answers</h3>' +
-        '<div class="record-list">' + renderQuestionnaire(data.questionnaire) + '</div>' +
+        renderQuestionnaireEditor(data.questionnaire) +
         '<h3>Existing data</h3>' +
         '<div class="record-list">' + renderRecords(data.records) + '</div>' +
         '<h3>Invite history</h3>' +
@@ -178,6 +179,16 @@
         formData.append('title', document.getElementById('document-title').value);
         formData.append('documentType', document.getElementById('document-type').value);
         formData.append('file', file);
+        if (document.getElementById('document-type').value === 'spreadsheet') {
+          try {
+            status.textContent = 'Reading spreadsheet...';
+            formData.append('dashboardData', JSON.stringify(await parseDashboardWorkbook(file)));
+          } catch (error) {
+            status.textContent = error.message;
+            return;
+          }
+        }
+        status.textContent = 'Uploading document...';
         try {
           var response = await fetch('/api/admin/clients/' + encodeURIComponent(id) + '/documents', {
             method: 'POST',
@@ -193,9 +204,102 @@
           status.textContent = error.message;
         }
       });
+
+      var questionnaireForm = document.getElementById('admin-questionnaire-form');
+      questionnaireForm.addEventListener('click', function (event) {
+        var addButton = event.target.closest('[data-admin-add-row]');
+        var removeButton = event.target.closest('[data-admin-remove-row]');
+        if (addButton) {
+          var question = data.questionnaire.questions.find(function (item) { return item.id === addButton.dataset.adminAddRow; });
+          var container = document.getElementById('admin-q-' + question.id);
+          var count = container.querySelectorAll('.repeat-row').length;
+          container.insertAdjacentHTML('beforeend', renderAdminRepeatRow(question, {}, count));
+        }
+        if (removeButton) {
+          removeButton.closest('.repeat-row').remove();
+        }
+      });
+      questionnaireForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var status = document.getElementById('admin-questionnaire-status');
+        status.textContent = 'Saving questionnaire...';
+        try {
+          await api('/api/admin/clients/' + encodeURIComponent(id) + '/questionnaire', {
+            method: 'POST',
+            body: JSON.stringify({
+              status: document.getElementById('questionnaire-response-status').value,
+              answers: collectAdminQuestionnaire(data.questionnaire.questions)
+            })
+          });
+          status.textContent = 'Questionnaire saved.';
+          loadClient(id);
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      });
     } catch (error) {
       detail.innerHTML = '<p class="portal-status">' + escapeHtml(error.message) + '</p>';
     }
+  }
+
+  async function parseDashboardWorkbook(file) {
+    if (!window.XLSX) throw new Error('Spreadsheet parser did not load. Refresh the admin page and try again.');
+    var buffer = await file.arrayBuffer();
+    var workbook = XLSX.read(buffer, { type: 'array' });
+    var sheet = workbook.Sheets[workbook.SheetNames[0]];
+    var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
+    var data = [];
+    for (var i = 7; i < rows.length; i++) {
+      var row = rows[i] || [];
+      var year = toNumber(row[0]);
+      var age = toNumber(row[1]);
+      if (!year || !age) continue;
+      data.push({
+        year: year,
+        age: age,
+        expBase: toNumber(row[6]),
+        expAdd: toNumber(row[8]),
+        employment: toNumber(row[11]),
+        divNonElig: toNumber(row[12]),
+        divElig: toNumber(row[13]),
+        otherInc: toNumber(row[14]),
+        cpp: toNumber(row[15]),
+        cppSurv: toNumber(row[16]),
+        oas: toNumber(row[17]),
+        oasClawback: toNumber(row[18]),
+        govTotal: toNumber(row[19]),
+        taxableInc: toNumber(row[20]),
+        cppEi: toNumber(row[21]),
+        totalTax: toNumber(row[22]),
+        marginal: toNumber(row[23]),
+        effective: toNumber(row[24]),
+        totalTaxPrem: toNumber(row[25]),
+        rrspVal: toNumber(row[26]),
+        rrspContrib: toNumber(row[27]),
+        tfsaVal: toNumber(row[29]),
+        tfsaContrib: toNumber(row[30]),
+        nonRegVal: toNumber(row[32]),
+        nonRegContrib: toNumber(row[33]),
+        allTypesVal: toNumber(row[45]),
+        allTypesContrib: toNumber(row[46]),
+        house: toNumber(row[47]),
+        realTotal: toNumber(row[48]),
+        realPurchSold: toNumber(row[49]),
+        mortOwing: toNumber(row[50]),
+        mortPaid: toNumber(row[51]),
+        netWorth: toNumber(row[59]),
+        estateBeforeTax: toNumber(row[60]),
+        estateTaxInc: toNumber(row[61]),
+        taxOnEstate: toNumber(row[62])
+      });
+    }
+    if (!data.length) throw new Error('Could not find dashboard rows in this spreadsheet.');
+    return data;
+  }
+
+  function toNumber(value) {
+    var numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
   }
 
   function renderRecords(records) {
@@ -225,14 +329,75 @@
     }).join('');
   }
 
-  function renderQuestionnaire(questionnaire) {
-    if (!questionnaire) return '<p class="muted">No questionnaire started yet.</p>';
+  function renderQuestionnaireEditor(questionnaire) {
+    if (!questionnaire) return '<p class="muted">No questionnaire available yet.</p>';
     var answers = questionnaire.answers || {};
-    var html = '<article class="record-item"><strong>Status: ' + escapeHtml(questionnaire.status) + '</strong><small>Updated ' + formatDate(questionnaire.updated_at) + '</small></article>';
+    var html = '<form id="admin-questionnaire-form" class="portal-form record-form admin-questionnaire-form">' +
+      '<label>Response status<select id="questionnaire-response-status">' +
+        '<option value="draft"' + (questionnaire.status !== 'submitted' ? ' selected' : '') + '>Draft</option>' +
+        '<option value="submitted"' + (questionnaire.status === 'submitted' ? ' selected' : '') + '>Submitted</option>' +
+      '</select></label>' +
+      '<p class="muted">Updated ' + formatDate(questionnaire.updated_at) + '</p>';
     (questionnaire.questions || []).forEach(function (question) {
-      html += '<article class="record-item"><strong>' + escapeHtml(question.label) + '</strong><p>' + escapeHtml(answers[question.id] || '').replace(/\n/g, '<br>') + '</p></article>';
+      if (question.type === 'section') {
+        html += '<h4 class="admin-question-section">' + escapeHtml(question.label) + '</h4>';
+        return;
+      }
+      html += renderAdminQuestionField(question, answers[question.id]);
     });
+    html += '<div class="questionnaire-actions"><button class="btn dark" type="submit">Save Questionnaire</button><span id="admin-questionnaire-status" class="portal-status"></span></div></form>';
     return html;
+  }
+
+  function renderAdminQuestionField(question, answer) {
+    if (question.type === 'repeater') {
+      var rows = Array.isArray(answer) && answer.length ? answer : [{}];
+      return '<fieldset class="repeat-question"><legend>' + escapeHtml(question.label) + '</legend>' +
+        '<div id="admin-q-' + escapeAttr(question.id) + '" class="repeat-rows">' + rows.map(function (row, index) {
+          return renderAdminRepeatRow(question, row, index);
+        }).join('') + '</div>' +
+        '<button class="btn ghost small-btn" type="button" data-admin-add-row="' + escapeAttr(question.id) + '">' + escapeHtml(question.addLabel || 'Add row') + '</button>' +
+      '</fieldset>';
+    }
+    var value = String(answer || '');
+    var field = question.type === 'textarea'
+      ? '<textarea id="admin-q-' + escapeAttr(question.id) + '" data-admin-question="' + escapeAttr(question.id) + '">' + escapeHtml(value) + '</textarea>'
+      : '<input id="admin-q-' + escapeAttr(question.id) + '" data-admin-question="' + escapeAttr(question.id) + '" value="' + escapeAttr(value) + '">';
+    return '<label class="question-field">' + escapeHtml(question.label) + field + '</label>';
+  }
+
+  function renderAdminRepeatRow(question, row, index) {
+    row = row || {};
+    return '<div class="repeat-row" data-row="' + index + '">' +
+      '<div class="repeat-row-head"><b>' + escapeHtml(question.label) + ' #' + (index + 1) + '</b><button type="button" class="text-button" data-admin-remove-row>Remove</button></div>' +
+      '<div class="repeat-fields">' + question.fields.map(function (field) {
+        return '<label>' + escapeHtml(field.label) + '<input data-admin-repeat="' + escapeAttr(question.id) + '" data-field="' + escapeAttr(field.id) + '" value="' + escapeAttr(row[field.id] || '') + '"></label>';
+      }).join('') + '</div>' +
+    '</div>';
+  }
+
+  function collectAdminQuestionnaire(questions) {
+    var payload = {};
+    questions.forEach(function (question) {
+      if (question.type === 'section') return;
+      if (question.type === 'repeater') {
+        var container = document.getElementById('admin-q-' + question.id);
+        payload[question.id] = Array.prototype.map.call(container.querySelectorAll('.repeat-row'), function (row) {
+          var item = {};
+          question.fields.forEach(function (field) {
+            var input = row.querySelector('[data-field="' + field.id + '"]');
+            item[field.id] = input ? input.value : '';
+          });
+          return item;
+        }).filter(function (row) {
+          return Object.keys(row).some(function (key) { return String(row[key] || '').trim(); });
+        });
+        return;
+      }
+      var input = document.getElementById('admin-q-' + question.id);
+      payload[question.id] = input ? input.value : '';
+    });
+    return payload;
   }
 
   function formatDate(value) {
@@ -243,6 +408,10 @@
     return String(value || '').replace(/[&<>"']/g, function (char) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
     });
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, '&#96;');
   }
 
   loadClients();
