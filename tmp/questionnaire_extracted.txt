@@ -1,0 +1,252 @@
+P [Heading 1] Financial Planning Questionnaire
+P [Heading 3] Contact Information
+P [Normal] John Doe, CFP®
+P [Normal] Sample Financial Planning Co.
+P [Normal] 110th Street, Unit 2100
+P [Normal] Edmonton, AB, T5K 6K4
+P [Normal] Phone: (555) 555-5555
+P [Normal] Email: john.doe@samplefinancialplanning.com
+P [Normal] Website: http://www.samplefinancialplanning.com
+P [Heading 5] Purpose of this Document / Confidentiality
+P [Normal] The purpose of this document is to assist you in gathering all relevant personal and financial information required to provide you with financial planning and/or financial investment advice. The information you provide is strictly confidential and will be used exclusively for the preparation of your personal financial plan.
+P [Heading 2] Introduction
+P [Normal] This Financial Planning Questionnaire is intended to help you collect and organize the information required to develop your financial plan. Please fill out the following questionnaire to the best of your abilities. If you don’t have all the information don’t worry, just fill out what you can!
+P [Normal] As you go through this workbook, gathering some of the following documents may be helpful in sharing important details of your current situation:
+P [List Paragraph] Bank Statements – Savings accounts, etc.
+P [List Paragraph] Investment Statements – TFSAs, non-registered accounts, etc.
+P [List Paragraph] Retirement Savings – RRSPs, pension statements, workplace retirement plans, etc.
+P [List Paragraph] Education Savings – RESPs, etc.
+P [List Paragraph] Tax Forms – Notices of Assessment, T4, T3, T5, T776, etc.
+P [List Paragraph] Government Benefit Statements – CPP, OAS, etc.
+P [List Paragraph] Liability Statements – Mortgages, loans, lines of credit, car loans, credit cards, etc.
+P [List Paragraph] Insurance Policies – Life, disability, critical illness, workplace, health, etc.
+P [List Paragraph] Corporate Information – Investment accounts, etc.
+P [Normal] Note: Some of these documents may not apply to your particular situation.
+P [Normal] A financial plan provides a comprehensive road map to help you achieve your financial goals and dreams, regardless of your age or net worth. A financial plan may cover the following financial planning areas:
+P [List Paragraph] Financial Management – Understand your cash flow & net worth.
+P [List Paragraph] Investment Planning – Establish how you should invest your money.
+P [List Paragraph] Risk Management – Determine if you are adequately insured.
+P [List Paragraph] Tax Planning – Get an assessment of tax strategies.
+P [List Paragraph] Retirement Planning – Validate that you are on track to meet your retirement goals.
+P [List Paragraph] Estate Planning – Ensure the appropriate plans and documentation are in place.
+P [Normal] The act of setting goals through financial planning is a powerful force. As a professional I can provide clarity on competing goals and priorities, giving you the best chance of achieving your most important objectives.
+P [Normal] Thank you in advance for taking the time to gather some of this information. This should be an enjoyable process, so take your time, allow yourself to dream a little, and have some fun!
+P [Normal] Begin by telling us a little bit about yourself…
+P [Heading 2] Personal Information
+P [Heading 4] Clients
+TABLE 0 (8x3)
+  | Name | 
+  | Date of Birth | 
+  | Address | 
+  | Employer | 
+  | Occupation | 
+  | Phone Number | 
+  ...
+P [Heading 4] Children & RESP (Registered Education Savings Plans)
+TABLE 1 (7x4)
+  | Name | 
+  | Date of Birth | 
+  | RESP Balance | 
+  | RESP Contributions and CESG Received to Date | 
+  | Annual Education Cost | 
+  | Education Start Age | 
+  ...
+P [Heading 2] Financial Goals
+P [Heading 4] Do you have any questions that we can help you answer?
+P [Normal] (i.e., Do I have enough money to retire comfortably? How long will my money last? What is the most I can spend
+TABLE 2 (1x1)
+  | 
+P [Heading 4] What is your desired annual after-tax lifestyle expense in retirement?
+P [Normal] (Note: this is the base expenses value in Snap)
+TABLE 3 (1x1)
+  | 
+P [Heading 4] When would you like to retire
+TABLE 4 (1x1)
+  | 
+P [Heading 4] Is it important for you to pass any assets to the family as a legacy?
+TABLE 5 (1x1)
+  | 
+P [Heading 4] Do you have any financial goals? When do you want to reach these goals?
+P [Normal] (i.e., Home renovation projects, paying off debt, paying off credit cards, travel, etc.)
+TABLE 6 (1x1)
+  | 
+P [Heading 2] Expenses, Income, Pensions, and Government Benefits
+P [Heading 3] Additional Expenses
+P [Normal] (Example: vacation, cars, renovation, and other occasional or one-time expenses)
+TABLE 7 (3x7)
+  | Client | Expense description | Annual Amount | From Age | To Age | Frequency / (For example: every 3 years) | Indexation
+  | 
+  | 
+P [Heading 3] Income
+P [Normal] (Excluding investment income. Please enter CPP and OAS under the Government Benefits section.)
+TABLE 8 (5x6)
+  | Client | Source | Annual Gross Amount | End Date | Indexation | Taxable / (Yes/No)
+  | 
+  | 
+  | 
+  | 
+P [Heading 3] Pensions
+P [Heading 4] DBPP - Defined Benefit Pension Plan
+TABLE 9 (4x9)
+  | Client | Source | Start Age | Amount Before Age 65 | Amount at Age 65 and After
+  | Client | Source | Start Age | Gross Annual | Survivor % | Indexing % | Gross Annual | Survivor % | Indexing %
+  | 
+  | 
+P [Heading 4] DCPP - Defined Contribution Pension Plan
+TABLE 10 (3x4)
+  | Client | Balance | Employee Contribution % | Employer Contribution %
+  | 
+  | 
+P [Heading 3] Government Benefits
+P [Heading 4] CPP - Canada Pension Plan
+TABLE 11 (3x4)
+  | Client | Start Age | Gross Dollar Amount / (Annual) | % of Maximum (Optional)
+  | 
+  | 
+P [Heading 4] OAS - Old Age Security
+TABLE 12 (3x4)
+  | Client | Start Age | Gross Dollar Amount / (Annual) | 40 years in Canada? / % of Maximum
+  | 
+  | 
+P [Heading 2] Net Worth
+P [Heading 3] Assets
+P [Heading 4] Financial Assets
+P [Heading 5] Registered
+P [Normal] (Note on DCPPs: Please enter Defined Contribution Pension Plans under the Pensions section.)
+TABLE 13 (9x6)
+  | Owner(s) | Account Type | Financial Institution | Market Value | Contribution Room | Annual Contributions  / (incl. Employer)
+  |  | TFSA | 
+  |  | TFSA | 
+  |  | RRSP / RRIF | 
+  |  | RRSP / RRIF | 
+  |  | Spousal RRSP | 
+  ...
+P [Normal] * FHSA: Opening age:			Carry forward Room for this year:
+P [Normal] Lifetime Contributions:
+P [Heading 5] Non-Registered
+TABLE 14 (4x6)
+  | Owner(s) | Account Type | Financial Institution | Market Value | Adjusted Cost Base | Annual Contributions  / (incl. Employer)
+  |  | Investment | 
+  |  | Investment | 
+  |  | Savings | 
+P [Heading 4] Real Assets
+TABLE 15 (5x6)
+  | Owner(s) | Type | Location | Market Value | Adjusted Cost Base | Net Rental Income
+  |  | Principal Residence | 
+  |  | Vacation Property | 
+  |  | Rental Property | 
+  |  | Rental Property | 
+P [Heading 3] Liabilities
+P [Heading 4] Debts
+TABLE 16 (10x6)
+  | Owner(s) | Type | Financial Institution | Balance | Interest Rate | Monthly Payment
+  |  | Mortgage | 
+  |  | Loan | 
+  |  | Loan | 
+  |  | Line of Credit | 
+  |  | Line of Credit | 
+  ...
+P [Heading 2] Insurance
+P [Heading 4] Life Insurance
+TABLE 17 (5x5)
+  | Owner(s) | Type | Life Insured | Beneficiaries | Coverage Details / (Premiums, Benefit, End Date, Provider, Etc.)
+  |  | Term | 
+  |  | Term | 
+  |  | Whole | 
+  |  | Universal | 
+P [Heading 4] Disability Insurance
+TABLE 18 (7x3)
+  | Owner | Type | Coverage Details / (Premiums, Benefit, End Date, Provider, Riders, Etc.)
+  |  | Individual | 
+  |  | Individual | 
+  |  | Group STD | 
+  |  | Group STD | 
+  |  | Group LTD | 
+  ...
+P [Heading 4] Critical Illness Insurance
+TABLE 19 (3x3)
+  | Owner | Type | Coverage Details / (Premiums, Benefit, End Date, Provider, Riders, Etc.)
+  | 
+  | 
+P [Heading 2] Corporations
+P [Heading 4] List of Corporations
+TABLE 20 (4x8)
+  | Name/Description | Province of Incorporation | % Ownership | Eligible RDTOH | Non-Eligible RDTOH | CDA
+  | Name/Description | Province of Incorporation | Client | Spouse | Other | Eligible RDTOH | Non-Eligible RDTOH | CDA
+  | 
+  | 
+P [Heading 4] Corporate Assets
+TABLE 21 (6x5)
+  | Corporation | Description | Market Value | Adjusted Cost Base | Contributions / (or Net Rental Income)
+  | 
+  | 
+  | 
+  | 
+  | 
+P [Heading 4] Corporate Income and Expenses
+TABLE 22 (4x4)
+  | Corporation | Active Business Income | Tax-Deductible Expenses | Non-Deductible Expenses
+  | 
+  | 
+  | 
+P [Heading 4] Shareholder Income
+TABLE 23 (4x5)
+  | Shareholder | Corporation | Salary | Non-Eligible Dividends | Eligible Dividends
+  | 
+  | 
+  | 
+P [Heading 4] Corporate Liabilities
+TABLE 24 (5x5)
+  | Corporation | Description | Balance | Interest Rate | Payments
+  |  | Mortgage | 
+  |  | Loan | 
+  |  | Line of Credit | 
+  | 
+P [Heading 4] Corporate-Owned Life Insurance
+TABLE 25 (4x5)
+  | Description | Type | Life Insured | Beneficiaries | Coverage Details / (Premiums, Benefit, End Date, Provider, Etc.)
+  |  | Term |  | Corporate | 
+  |  | Whole |  | Corporate | 
+  |  | Universal |  | Corporate | 
+P [Heading 4] Accountant
+TABLE 26 (5x3)
+  | Name | 
+  | Firm | 
+  | Phone Number | 
+  | Email Address | 
+  | Address | 
+P [Heading 2] Investment Profile
+P [Heading 4] Asset Allocation
+TABLE 27 (7x7)
+  | By Goal / (or Asset) | Cash | Fixed Income | Equity
+  | By Goal / (or Asset) | % | RoR | % | RoR | % | RoR
+  | Pre-Retirement | 
+  | Retirement | 
+  | Pension | 
+  | Education Savings | 
+  ...
+P [Heading 4] Investment Notes
+TABLE 28 (1x1)
+  | 
+P [Heading 2] Estate Planning
+P [Heading 4] Wills
+TABLE 29 (3x4)
+  | Client(s) | Type | Date Last Updated | Details / (Executor, Guardian, Location, Etc.)
+  | 
+  | 
+P [Heading 4] Power of Attorney
+TABLE 30 (4x4)
+  | Client | Type | Date Last Updated | Details / (Attorney, Location, Etc.)
+  |  | General | 
+  |  | Continuing | 
+  |  | Personal Care | 
+P [Heading 4] Lawyer
+TABLE 31 (5x3)
+  | Name | 
+  | Firm | 
+  | Phone Number | 
+  | Email Address | 
+  | Address | 
+P [Heading 2] Notes
+TABLE 32 (1x1)
+  | 

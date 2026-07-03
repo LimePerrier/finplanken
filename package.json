@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "dev:ui": "node tools/local-ui-server.mjs"
+  }
+}

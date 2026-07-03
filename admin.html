@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=20260702-admin-questionnaire">
+<link rel="stylesheet" href="assets/styles.css?v=20260702-admin-actions">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="portal-body">
@@ -108,7 +108,9 @@
         '</div>' +
         '<div class="admin-actions">' +
           '<button class="btn ghost" id="toggle-status">' + (client.status === 'disabled' ? 'Reactivate Login' : 'Suspend Login') + '</button>' +
+          '<button class="btn ghost" id="reset-password" type="button">Reset Password</button>' +
         '</div>' +
+        '<div id="admin-action-status" class="portal-status"></div>' +
         '<form id="record-form" class="portal-form record-form">' +
           '<h3>Add client data</h3>' +
           '<label>Title<input id="record-title" required></label>' +
@@ -143,6 +145,24 @@
         });
         loadClients();
         loadClient(id);
+      });
+
+      document.getElementById('reset-password').addEventListener('click', async function () {
+        var status = document.getElementById('admin-action-status');
+        if (!confirm('Send a new password setup link to ' + client.email + '? Their current sessions will be signed out.')) return;
+        status.textContent = 'Creating password reset link...';
+        try {
+          var result = await api('/api/admin/clients/' + encodeURIComponent(id) + '/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({})
+          });
+          status.innerHTML = result.emailSent
+            ? 'Password reset email sent.'
+            : 'Email is not configured. Use this reset link: <a href="' + escapeAttr(result.resetUrl) + '">' + escapeHtml(result.resetUrl) + '</a>';
+          loadClients();
+        } catch (error) {
+          status.textContent = error.message;
+        }
       });
 
       document.getElementById('record-form').addEventListener('submit', async function (event) {
@@ -206,6 +226,22 @@
       });
 
       var questionnaireForm = document.getElementById('admin-questionnaire-form');
+      detail.querySelectorAll('[data-delete-document]').forEach(function (button) {
+        button.addEventListener('click', async function () {
+          var status = document.getElementById('document-status');
+          var docTitle = button.getAttribute('data-document-title') || 'this document';
+          if (!confirm('Delete ' + docTitle + '? This removes the file from the client portal.')) return;
+          status.textContent = 'Deleting document...';
+          try {
+            await api('/api/admin/clients/' + encodeURIComponent(id) + '/documents/' + encodeURIComponent(button.dataset.deleteDocument), {
+              method: 'DELETE'
+            });
+            loadClient(id);
+          } catch (error) {
+            status.textContent = error.message;
+          }
+        });
+      });
       questionnaireForm.addEventListener('click', function (event) {
         var addButton = event.target.closest('[data-admin-add-row]');
         var removeButton = event.target.closest('[data-admin-remove-row]');
@@ -323,8 +359,9 @@
   function renderDocuments(documents) {
     if (!documents.length) return '<p class="muted">No documents uploaded yet.</p>';
     return documents.map(function (document) {
-      return '<article class="record-item">' +
+      return '<article class="record-item document-record">' +
         '<div><strong>' + escapeHtml(document.title) + '</strong><small>' + escapeHtml(document.document_type) + ' - ' + escapeHtml(document.file_name) + ' - ' + formatDate(document.uploaded_at) + '</small></div>' +
+        '<button class="text-button danger" type="button" data-delete-document="' + escapeAttr(document.id) + '" data-document-title="' + escapeAttr(document.title) + '">Delete</button>' +
       '</article>';
     }).join('');
   }
