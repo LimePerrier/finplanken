@@ -384,6 +384,15 @@ form textarea{min-height:140px;resize:vertical}
 .doc-frame{display:block;width:100%;height:72vh;min-height:520px;border:0;background:#fff}
 .doc-empty{text-align:center;max-width:460px;padding:30px}
 .doc-empty b{display:block;font-family:'Cormorant Garamond';font-size:30px;color:var(--forest);margin-bottom:8px}
+.docx-preview{width:100%;min-height:520px;padding:42px 48px;color:var(--ink);font-size:15.5px;line-height:1.7;overflow:auto;align-self:stretch}
+.docx-preview h1,.docx-preview h2,.docx-preview h3{margin:22px 0 10px;color:var(--forest)}
+.docx-preview h1{font-size:34px}
+.docx-preview h2{font-size:28px}
+.docx-preview h3{font-size:22px}
+.docx-preview p{margin:0 0 14px}
+.docx-preview ul,.docx-preview ol{margin:0 0 18px 24px}
+.docx-preview table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+.docx-preview th,.docx-preview td{border:1px solid var(--line);padding:8px 10px;vertical-align:top}
 .questionnaire-panel{max-width:860px;margin:0 auto}
 .questionnaire-panel .portal-form{margin-top:0}
 .questionnaire-panel textarea{min-height:132px}

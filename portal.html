@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="assets/styles.css?v=20260702-tooltip-only">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 </head>
 <body class="portal-body portal-delivery-body">
 <header class="client-delivery-header">
@@ -664,20 +665,43 @@
       preview.textContent = 'No commentary document has been uploaded yet.';
       return;
     }
-    actions.innerHTML = '<a class="btn dark" href="' + downloadUrl(doc) + '">Open DOCX</a><a class="btn ghost" href="' + downloadUrl(doc) + '" download>Download</a>';
-    preview.innerHTML = '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>Word documents download directly. Add a PDF commentary copy later if you want an in-browser preview.</p></div>';
+    actions.innerHTML = '<a class="btn dark" href="' + downloadUrl(doc, true) + '">Download DOCX</a>';
+    preview.innerHTML = '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>Loading commentary...</p></div>';
+    renderDocxPreview(doc, preview);
   }
 
   function renderReport(pdf) {
     var actions = document.getElementById('report-actions');
     var preview = document.getElementById('report-preview');
     var buttons = [];
-    if (pdf) buttons.push('<a class="btn dark" href="' + downloadUrl(pdf) + '">Open PDF</a>');
+    if (pdf) {
+      buttons.push('<a class="btn dark" href="' + downloadUrl(pdf) + '" target="_blank" rel="noopener">Open PDF</a>');
+      buttons.push('<a class="btn ghost" href="' + downloadUrl(pdf, true) + '">Download</a>');
+    }
     actions.innerHTML = buttons.join('');
     if (pdf) {
       preview.innerHTML = '<iframe class="doc-frame" src="' + downloadUrl(pdf) + '" title="Full report PDF preview"></iframe>';
     } else {
       preview.textContent = 'No plan PDF has been uploaded yet.';
+    }
+  }
+
+  async function renderDocxPreview(doc, preview) {
+    if (!window.mammoth) {
+      preview.innerHTML = '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>The document viewer could not load. Use Download DOCX to open the file.</p></div>';
+      return;
+    }
+    try {
+      var response = await fetch(downloadUrl(doc));
+      if (!response.ok) throw new Error('Could not load commentary document.');
+      var buffer = await response.arrayBuffer();
+      var result = await window.mammoth.convertToHtml({ arrayBuffer: buffer });
+      var html = sanitizeDocHtml(result.value || '');
+      preview.innerHTML = html
+        ? '<article class="docx-preview">' + html + '</article>'
+        : '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>This document did not contain previewable text. Use Download DOCX to open the file.</p></div>';
+    } catch (error) {
+      preview.innerHTML = '<div class="doc-empty"><b>' + escapeHtml(doc.title) + '</b><p>' + escapeHtml(error.message || 'Could not preview this document.') + ' Use Download DOCX to open the file.</p></div>';
     }
   }
 
@@ -791,8 +815,25 @@
     status.textContent = value === 'submitted' ? 'Submitted' : 'Draft';
   }
 
-  function downloadUrl(doc) {
-    return '/api/client/documents/' + encodeURIComponent(doc.id) + '/download';
+  function sanitizeDocHtml(html) {
+    var parsed = new DOMParser().parseFromString(html, 'text/html');
+    parsed.querySelectorAll('script,style,link,iframe,object,embed').forEach(function (node) {
+      node.remove();
+    });
+    parsed.body.querySelectorAll('*').forEach(function (node) {
+      Array.prototype.slice.call(node.attributes).forEach(function (attr) {
+        var name = attr.name.toLowerCase();
+        var value = attr.value || '';
+        if (name.indexOf('on') === 0 || (name === 'href' && /^javascript:/i.test(value))) {
+          node.removeAttribute(attr.name);
+        }
+      });
+    });
+    return parsed.body.innerHTML;
+  }
+
+  function downloadUrl(doc, forceDownload) {
+    return '/api/client/documents/' + encodeURIComponent(doc.id) + '/download' + (forceDownload ? '?download=1' : '');
   }
   function money(value) {
     return '$' + Math.round(value).toLocaleString('en-CA');
