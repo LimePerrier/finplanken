@@ -19,11 +19,15 @@ export async function readJson(request) {
 }
 
 export function requireAdmin(request, env) {
-  const expected = String(env.ADMIN_INVITE_TOKEN || "").trim();
+  const expected = String(env.ADMIN_INVITE_TOKEN || "")
+    .split(/[,\n]/)
+    .map((value) => value.trim())
+    .filter(Boolean);
   const header = request.headers.get("x-admin-token") || "";
   const bearer = request.headers.get("authorization") || "";
   const token = (header || bearer.replace(/^Bearer\s+/i, "")).trim();
-  return Boolean(expected && token && safeEqual(token, expected));
+  if (!token || expected.length === 0) return false;
+  return expected.some((candidate) => safeEqual(token, candidate));
 }
 
 export function appUrl(request, env) {

@@ -51,7 +51,7 @@ Required Cloudflare setup:
 2. Create an R2 bucket named `bracket-planning-client-files` and bind it to Pages as `CLIENT_FILES`.
 3. Apply `schema.sql` to the D1 database. Re-run it after schema changes; it uses `if not exists` for safe additive setup.
 4. Add Cloudflare Pages environment variables:
-   - `ADMIN_INVITE_TOKEN`: private token used by `admin-invite.html`
+   - `ADMIN_INVITE_TOKEN`: private token used by `admin-invite.html`. To support multiple admins, list several tokens separated by commas or newlines; any one of them is accepted, so each admin can have (and you can revoke) their own.
    - `APP_URL`: production site origin, for example `https://bracketplanning.ca`
    - `INVITE_FROM`: verified sender address for invite emails
 5. To send invite emails through Cloudflare Email Service, onboard the sending domain and add:
