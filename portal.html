@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/styles.css?v=20260702-tooltip-only">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.js"></script>
 </head>
 <body class="portal-body portal-delivery-body">
@@ -145,7 +146,32 @@
         </div>
         <span id="questionnaire-status" class="status-badge invited">Loading</span>
       </div>
+      <div class="questionnaire-intro">
+        <p>This Financial Planning Questionnaire is intended to help you collect and organize the information required to develop your financial plan. Please fill out the following questionnaire to the best of your abilities. If you don&rsquo;t have all the information don&rsquo;t worry, just fill out what you can!</p>
+        <p>As you go through this workbook, gathering some of the following documents may be helpful in sharing important details of your current situation:</p>
+        <ul>
+          <li>Bank Statements &ndash; Savings accounts, etc.</li>
+          <li>Investment Statements &ndash; TFSAs, non-registered accounts, etc.</li>
+          <li>Retirement Savings &ndash; RRSPs, pension statements, workplace retirement plans, etc.</li>
+          <li>Education Savings &ndash; RESPs, etc.</li>
+          <li>Tax Forms &ndash; Notices of Assessment, T4, T3, T5, T776, etc.</li>
+          <li>Government Benefit Statements &ndash; CPP, OAS, etc.</li>
+          <li>Liability Statements &ndash; Mortgages, loans, lines of credit, car loans, credit cards, etc.</li>
+          <li>Insurance Policies &ndash; Life, disability, critical illness, workplace, health, etc.</li>
+          <li>Corporate Information &ndash; Investment accounts, etc.</li>
+        </ul>
+      </div>
       <form id="questionnaire-form" class="portal-form questionnaire-form"></form>
+      <div class="questionnaire-attachments">
+        <h3>Supporting Documents</h3>
+        <p class="muted">Upload any supporting files, such as statements or tax forms. Images (JPG, PNG), PDF, and Word documents are accepted, up to 50 files total.</p>
+        <div id="attachment-list" class="attachment-list"></div>
+        <label class="btn ghost small-btn file-upload-btn">
+          Add Files
+          <input id="attachment-input" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+        </label>
+        <p id="attachment-status" class="muted small-note"></p>
+      </div>
     </article>
   </section>
 </main>
@@ -155,8 +181,11 @@
     user: null,
     documents: [],
     selectedIndex: 0,
-    planData: []
+    planData: [],
+    attachments: []
   };
+  var MAX_ATTACHMENTS = 50;
+  var ALLOWED_ATTACHMENT_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 
   var message = document.getElementById('portal-message');
   var response = await fetch('/api/auth/me');
@@ -177,6 +206,8 @@
   renderPlan();
   await loadDocuments();
   await loadQuestionnaire();
+  setupAttachments();
+  await loadAttachments();
 
   function setupTabs() {
     Array.prototype.forEach.call(document.querySelectorAll('.delivery-tab'), function (button) {
@@ -824,6 +855,72 @@
     var status = document.getElementById('questionnaire-status');
     status.className = 'status-badge ' + (value === 'submitted' ? 'active' : 'invited');
     status.textContent = value === 'submitted' ? 'Submitted' : 'Draft';
+  }
+
+  async function loadAttachments() {
+    var response = await fetch('/api/client/questionnaire/attachments');
+    if (!response.ok) return;
+    var data = await response.json();
+    state.attachments = data.attachments || [];
+    renderAttachments();
+  }
+
+  function renderAttachments() {
+    var list = document.getElementById('attachment-list');
+    var status = document.getElementById('attachment-status');
+    var input = document.getElementById('attachment-input');
+    list.innerHTML = state.attachments.length
+      ? state.attachments.map(function (file) {
+          return '<div class="attachment-row"><a href="/api/client/questionnaire/attachments/' + encodeURIComponent(file.id) + '/download" target="_blank" rel="noopener">' + escapeHtml(file.file_name) + '</a><button type="button" class="text-button" data-remove-attachment="' + escapeAttr(file.id) + '">Remove</button></div>';
+        }).join('')
+      : '<p class="muted">No files uploaded yet.</p>';
+    status.textContent = state.attachments.length + ' / ' + MAX_ATTACHMENTS + ' files uploaded';
+    input.disabled = state.attachments.length >= MAX_ATTACHMENTS;
+  }
+
+  function setupAttachments() {
+    var input = document.getElementById('attachment-input');
+    var list = document.getElementById('attachment-list');
+    input.addEventListener('change', async function () {
+      var files = Array.prototype.slice.call(input.files || []);
+      for (var i = 0; i < files.length; i++) {
+        if (state.attachments.length >= MAX_ATTACHMENTS) {
+          alert('You can upload a maximum of ' + MAX_ATTACHMENTS + ' files.');
+          break;
+        }
+        await uploadAttachment(files[i]);
+      }
+      input.value = '';
+    });
+    list.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-remove-attachment]');
+      if (button) deleteAttachment(button.dataset.removeAttachment);
+    });
+  }
+
+  async function uploadAttachment(file) {
+    var status = document.getElementById('attachment-status');
+    if (!ALLOWED_ATTACHMENT_TYPES.includes(file.type)) {
+      alert(file.name + ' is not a supported file type.');
+      return;
+    }
+    status.textContent = 'Uploading ' + file.name + '...';
+    var formData = new FormData();
+    formData.append('file', file);
+    var response = await fetch('/api/client/questionnaire/attachments', { method: 'POST', body: formData });
+    var result = await response.json();
+    if (response.ok) {
+      state.attachments.unshift(result);
+    } else {
+      alert(result.error || ('Could not upload ' + file.name));
+    }
+    renderAttachments();
+  }
+
+  async function deleteAttachment(id) {
+    await fetch('/api/client/questionnaire/attachments/' + encodeURIComponent(id), { method: 'DELETE' });
+    state.attachments = state.attachments.filter(function (file) { return file.id !== id; });
+    renderAttachments();
   }
 
   function downloadUrl(doc, forceDownload) {

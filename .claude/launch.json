@@ -6,6 +6,13 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8011"],
       "port": 8011
+    },
+    {
+      "name": "dev-ui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/local-ui-server.mjs"],
+      "port": 8788,
+      "autoPort": true
     }
   ]
 }

@@ -2,8 +2,10 @@ import http from "node:http";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { readFile, readFile as readFileAsync } from "node:fs/promises";
 import path from "node:path";
+import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 import { questions } from "../functions/api/client/questionnaire.js";
+import { MAX_ATTACHMENTS } from "../functions/api/client/questionnaire/attachments.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const port = Number(process.env.PORT || 8788);
@@ -61,6 +63,9 @@ let questionnaire = {
   }
 };
 
+const attachments = [];
+const attachmentFiles = new Map();
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
   try {
@@ -91,6 +96,55 @@ const server = http.createServer(async (req, res) => {
         answers: body.answers || {}
       };
       return sendJson(res, { ok: true, status: questionnaire.status });
+    }
+    if (url.pathname === "/api/client/questionnaire/attachments" && req.method === "GET") {
+      return sendJson(res, { attachments });
+    }
+    if (url.pathname === "/api/client/questionnaire/attachments" && req.method === "POST") {
+      if (attachments.length >= MAX_ATTACHMENTS) {
+        return sendJson(res, { error: `You can upload a maximum of ${MAX_ATTACHMENTS} files.` }, 400);
+      }
+      const form = await new Response(Readable.toWeb(req), {
+        headers: { "content-type": req.headers["content-type"] || "" }
+      }).formData();
+      const file = form.get("file");
+      if (!file || typeof file === "string") {
+        return sendJson(res, { error: "Choose a file to upload." }, 400);
+      }
+      const id = `qa_mock_${attachments.length + 1}_${Date.now()}`;
+      const record = {
+        id,
+        file_name: file.name,
+        content_type: file.type,
+        size_bytes: file.size,
+        uploaded_at: new Date().toISOString()
+      };
+      attachments.unshift(record);
+      attachmentFiles.set(id, Buffer.from(await file.arrayBuffer()));
+      return sendJson(res, { ok: true, ...record });
+    }
+    if (url.pathname.startsWith("/api/client/questionnaire/attachments/") && url.pathname.endsWith("/download")) {
+      const id = decodeURIComponent(url.pathname.split("/")[5] || "");
+      const record = attachments.find((item) => item.id === id);
+      const buffer = attachmentFiles.get(id);
+      if (!record || !buffer) {
+        res.writeHead(404);
+        res.end("Not found");
+        return;
+      }
+      res.writeHead(200, {
+        "content-type": record.content_type,
+        "content-disposition": `attachment; filename="${record.file_name.replace(/"/g, "")}"`
+      });
+      res.end(buffer);
+      return;
+    }
+    if (url.pathname.startsWith("/api/client/questionnaire/attachments/") && req.method === "DELETE") {
+      const id = decodeURIComponent(url.pathname.split("/")[5] || "");
+      const index = attachments.findIndex((item) => item.id === id);
+      if (index >= 0) attachments.splice(index, 1);
+      attachmentFiles.delete(id);
+      return sendJson(res, { ok: true });
     }
     if (url.pathname === "/api/admin/clients") {
       return sendJson(res, { clients: [{ ...mockClient, record_count: 0 }] });

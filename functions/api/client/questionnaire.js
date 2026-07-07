@@ -36,16 +36,13 @@ export const questions = [
     { id: "annual_amount", label: "Annual amount" },
     { id: "from_age", label: "From age" },
     { id: "to_age", label: "To age" },
-    { id: "frequency", label: "Frequency" },
-    { id: "indexation", label: "Indexation" }
+    { id: "frequency", label: "Frequency" }
   ] },
   { id: "income_sources", label: "Income sources", help: "Employment, self-employment, rental, consulting, or other income before tax. Exclude investment income. Enter CPP and OAS below. You can usually find these amounts on pay stubs, employment contracts, T4s, business records, or rental statements.", type: "repeater", addLabel: "Add income source", fields: [
     { id: "client", label: "Client" },
     { id: "source", label: "Source" },
     { id: "annual_gross_amount", label: "Annual gross amount", help: "Income before tax and deductions. For employment income, use salary plus expected bonus if applicable. Find this on your employment contract, pay stub, T4, or business/rental records." },
-    { id: "end_date", label: "End date", help: "When this income is expected to stop. If it is ongoing or unknown, leave blank or write ongoing." },
-    { id: "indexation", label: "Indexation", help: "Whether the income is expected to increase each year, and by how much. For example: 2% per year, inflation, none, or unknown." },
-    { id: "taxable", label: "Taxable? (Yes/No)", help: "Whether this income is taxable on your personal tax return. Most employment, business, pension, CPP, and rental income is taxable." }
+    { id: "end_date", label: "End date", help: "When this income is expected to stop. If it is ongoing or unknown, leave blank or write ongoing." }
   ] },
   { id: "defined_benefit_pensions", label: "Defined benefit pensions", type: "repeater", addLabel: "Add DB pension", fields: [
     { id: "client", label: "Client" },
@@ -91,7 +88,6 @@ export const questions = [
     { id: "account_type", label: "Account type", help: "Examples: taxable investment account, joint non-registered account, savings account, GIC, private investment, or shares." },
     { id: "institution", label: "Financial institution", help: "The bank, brokerage, investment firm, or other institution that holds the asset." },
     { id: "market_value", label: "Market value", help: "Current value or account balance. Find this on your latest statement or online account." },
-    { id: "adjusted_cost_base", label: "Adjusted cost base", help: "Usually called ACB or book value. It is roughly what you paid for the investment, adjusted for transactions. Find it on brokerage statements, gain/loss reports, tax packages, or ask your advisor/accountant." },
     { id: "annual_contributions", label: "Annual contributions incl. employer", help: "How much you expect to add each year. For non-registered accounts this is usually personal savings, not employer contributions." }
   ] },
   { id: "real_assets", label: "Real assets", help: "Principal residence, vacation property, rental property, or other real assets.", type: "repeater", addLabel: "Add real asset", fields: [
@@ -100,7 +96,7 @@ export const questions = [
     { id: "location", label: "Location" },
     { id: "market_value", label: "Market value", help: "Estimated current property value. Use a recent appraisal, realtor estimate, property assessment, or your best estimate." },
     { id: "adjusted_cost_base", label: "Adjusted cost base", help: "Usually what you paid for the property plus eligible improvements and purchase costs. For tax-sensitive properties, your accountant may have this." },
-    { id: "net_rental_income", label: "Net rental income", help: "Annual rental income after rental expenses but before personal tax. Find this on rental records or your tax return rental statement." }
+    { id: "net_rental_income", label: "Net rental income (optional)", help: "Annual rental income after rental expenses but before personal tax, if this is a rental property. Leave blank if not applicable. Find this on rental records or your tax return rental statement." }
   ] },
   { id: "debts", label: "Debts and liabilities", type: "repeater", addLabel: "Add debt", fields: [
     { id: "owners", label: "Owner(s)" },
