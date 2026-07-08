@@ -135,6 +135,8 @@
         '<div class="record-list">' + renderDocuments(data.documents, client.id) + '</div>' +
         '<h3>Questionnaire answers</h3>' +
         renderQuestionnaireEditor(data.questionnaire) +
+        '<h3>Client uploaded files</h3>' +
+        '<div class="record-list">' + renderAttachments(data.attachments) + '</div>' +
         '<h3>Existing data</h3>' +
         '<div class="record-list">' + renderRecords(data.records) + '</div>' +
         '<h3>Invite history</h3>' +
@@ -229,6 +231,28 @@
       });
 
       var questionnaireForm = document.getElementById('admin-questionnaire-form');
+      detail.querySelectorAll('[data-view-attachment]').forEach(function (button) {
+        button.addEventListener('click', async function () {
+          var fileId = button.getAttribute('data-view-attachment');
+          var original = button.textContent;
+          button.disabled = true;
+          button.textContent = 'Opening...';
+          try {
+            var response = await fetch('/api/admin/clients/' + encodeURIComponent(id) + '/attachments/' + encodeURIComponent(fileId) + '/download', {
+              headers: { 'x-admin-token': tokenInput.value }
+            });
+            if (!response.ok) throw new Error('Could not load file.');
+            var blob = await response.blob();
+            var url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+          } catch (error) {
+            alert(error.message);
+          }
+          button.disabled = false;
+          button.textContent = original;
+        });
+      });
       detail.querySelectorAll('[data-delete-document]').forEach(function (button) {
         button.addEventListener('click', async function () {
           var status = document.getElementById('document-status');
@@ -367,6 +391,24 @@
         '<button class="text-button danger" type="button" data-delete-document="' + escapeAttr(document.id) + '" data-document-title="' + escapeAttr(document.title) + '">Delete</button>' +
       '</article>';
     }).join('');
+  }
+
+  function renderAttachments(attachments) {
+    if (!attachments || !attachments.length) return '<p class="muted">No files uploaded by the client yet.</p>';
+    return attachments.map(function (file) {
+      return '<article class="record-item document-record">' +
+        '<div><strong>' + escapeHtml(file.file_name) + '</strong><small>' + escapeHtml(file.content_type || '') + ' - ' + formatBytes(file.size_bytes) + ' - ' + formatDate(file.uploaded_at) + '</small></div>' +
+        '<button class="text-button" type="button" data-view-attachment="' + escapeAttr(file.id) + '">View / Download</button>' +
+      '</article>';
+    }).join('');
+  }
+
+  function formatBytes(bytes) {
+    var value = Number(bytes || 0);
+    if (!value) return '';
+    if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB';
+    if (value >= 1024) return Math.round(value / 1024) + ' KB';
+    return value + ' B';
   }
 
   function renderQuestionnaireEditor(questionnaire) {

@@ -23,7 +23,7 @@ export const questions = [
   ] },
 
   { type: "section", id: "goals_section", label: "Financial Goals" },
-  { id: "planning_questions", label: "What questions can we help you answer?", help: "For example: Do I have enough money to retire comfortably? How long will my money last? What is the most I can spend?", type: "textarea", required: true },
+  { id: "planning_questions", label: "What questions can we help you answer?", help: "For example: Do I have enough money to retire comfortably? How long will my money last? What is the most I can spend?", type: "textarea" },
   { id: "retirement_lifestyle_expense", label: "Desired annual after-tax lifestyle expense", help: "Your base living expenses: the normal annual spending you want your plan to support after tax. Include regular household spending such as food, utilities, property tax, insurance, transportation, health, subscriptions, gifts, and routine travel. Exclude one-time goals like renovations, vehicle purchases, or large special trips; add those under other financial goals or additional expenses.", type: "text" },
   { id: "retirement_timing", label: "When would you like to retire?", type: "textarea" },
   { id: "legacy_goals", label: "Is it important for you to pass assets to family or charity as a legacy?", type: "textarea" },

@@ -27,11 +27,16 @@ export async function onRequestGet({ request, env, params }) {
     "select id, status, answers_json, submitted_at, updated_at from questionnaire_responses where user_id = ? order by created_at desc limit 1"
   ).bind(params.id).first();
 
+  const attachments = await env.DB.prepare(
+    "select id, file_name, content_type, size_bytes, uploaded_at from questionnaire_attachments where user_id = ? order by uploaded_at desc"
+  ).bind(params.id).all();
+
   return json({
     client: user,
     records: records.results || [],
     invites: invites.results || [],
     documents: documents.results || [],
+    attachments: attachments.results || [],
     questionnaire: questionnaire
       ? { ...questionnaire, questions, answers: JSON.parse(questionnaire.answers_json || "{}") }
       : { id: null, status: "draft", answers: {}, submitted_at: null, updated_at: null, questions },

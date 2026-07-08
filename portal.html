@@ -806,7 +806,7 @@
     var answers = data.response.answers || {};
     form.innerHTML = data.questions.map(function (question) {
       return renderQuestion(question, answers[question.id]);
-    }).join('') + '<div class="questionnaire-actions"><button class="btn ghost" type="button" id="save-questionnaire">Save Draft</button><button class="btn dark" type="submit">Submit Questionnaire</button></div>';
+    }).join('') + '<div class="questionnaire-actions"><button class="btn ghost" type="button" id="save-questionnaire">Save Draft</button><button class="btn dark" type="submit">Submit Questionnaire</button></div><p id="questionnaire-message" class="small-note" role="status"></p>';
     setQuestionnaireStatus(data.response.status);
     document.getElementById('save-questionnaire').addEventListener('click', function () { saveQuestionnaire(false); });
     form.addEventListener('click', function (event) {
@@ -832,15 +832,27 @@
         if (question.type === 'section') return;
         payload[question.id] = collectAnswer(question);
       });
+      var message = document.getElementById('questionnaire-message');
       status.textContent = submit ? 'Submitting' : 'Saving';
+      if (message) { message.textContent = ''; message.classList.remove('success'); }
       var response = await fetch('/api/client/questionnaire', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ answers: payload, submit: submit })
       });
       var result = await response.json();
-      if (response.ok) setQuestionnaireStatus(submit ? 'submitted' : 'draft');
-      else status.textContent = result.error || 'Could not save';
+      if (response.ok) {
+        setQuestionnaireStatus(submit ? 'submitted' : 'draft');
+        if (submit) {
+          if (message) { message.textContent = 'Thank you. Your questionnaire has been submitted. You can still make changes and submit again if needed.'; message.classList.add('success'); }
+          window.alert('Thank you. Your questionnaire has been submitted.');
+        } else if (message) {
+          message.textContent = 'Draft saved at ' + new Date().toLocaleTimeString() + '.';
+        }
+      } else {
+        status.textContent = result.error || 'Could not save';
+        if (message) message.textContent = result.error || 'Could not save your answers. Please try again.';
+      }
     }
   }
 
