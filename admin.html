@@ -114,15 +114,6 @@
           '<button class="btn ghost" id="reset-password" type="button">Reset Password</button>' +
         '</div>' +
         '<div id="admin-action-status" class="portal-status"></div>' +
-        '<form id="record-form" class="portal-form record-form">' +
-          '<h3>Add client data</h3>' +
-          '<label>Title<input id="record-title" required></label>' +
-          '<label>Type<select id="record-type"><option value="note">Note</option><option value="questionnaire">Questionnaire</option><option value="document">Document</option><option value="planning">Planning Data</option></select></label>' +
-          '<label>Details<textarea id="record-body" required></textarea></label>' +
-          '<label class="checkbox-line"><input id="record-visible" type="checkbox"> Visible to client later</label>' +
-          '<button class="btn dark" type="submit">Add Data</button>' +
-          '<div id="record-status" class="portal-status"></div>' +
-        '</form>' +
         '<form id="document-form" class="portal-form record-form">' +
           '<h3>Upload client document</h3>' +
           '<label>Title<input id="document-title" required></label>' +
@@ -137,10 +128,16 @@
         renderQuestionnaireEditor(data.questionnaire) +
         '<h3>Client uploaded files</h3>' +
         '<div class="record-list">' + renderAttachments(data.attachments) + '</div>' +
-        '<h3>Existing data</h3>' +
-        '<div class="record-list">' + renderRecords(data.records) + '</div>' +
         '<h3>Invite history</h3>' +
-        '<div class="record-list compact">' + renderInvites(data.invites) + '</div>';
+        '<div class="record-list compact">' + renderInvites(data.invites) + '</div>' +
+        '<h3>Client notes</h3>' +
+        '<p class="muted">Internal notes for the planning team. Not visible to the client.</p>' +
+        '<div class="record-list">' + renderRecords(data.records) + '</div>' +
+        '<form id="record-form" class="portal-form record-form">' +
+          '<label>Add a note<textarea id="record-body" required></textarea></label>' +
+          '<button class="btn dark" type="submit">Add Note</button>' +
+          '<div id="record-status" class="portal-status"></div>' +
+        '</form>';
 
       document.getElementById('toggle-status').addEventListener('click', async function () {
         var nextStatus = client.status === 'disabled' ? 'active' : 'disabled';
@@ -173,15 +170,12 @@
       document.getElementById('record-form').addEventListener('submit', async function (event) {
         event.preventDefault();
         var status = document.getElementById('record-status');
-        status.textContent = 'Adding data...';
+        status.textContent = 'Adding note...';
         try {
           await api('/api/admin/clients/' + encodeURIComponent(id) + '/records', {
             method: 'POST',
             body: JSON.stringify({
-              title: document.getElementById('record-title').value,
-              recordType: document.getElementById('record-type').value,
-              body: document.getElementById('record-body').value,
-              visibleToClient: document.getElementById('record-visible').checked
+              body: document.getElementById('record-body').value
             })
           });
           loadClients();
@@ -366,10 +360,12 @@
   }
 
   function renderRecords(records) {
-    if (!records.length) return '<p class="muted">No data has been added for this client yet.</p>';
+    if (!records.length) return '<p class="muted">No notes yet.</p>';
     return records.map(function (record) {
+      var showTitle = record.title && record.title !== 'Note';
+      var titleHtml = showTitle ? '<strong>' + escapeHtml(record.title) + '</strong>' : '';
       return '<article class="record-item">' +
-        '<div><strong>' + escapeHtml(record.title) + '</strong><small>' + escapeHtml(record.record_type) + ' - ' + formatDate(record.created_at) + '</small></div>' +
+        '<div>' + titleHtml + '<small>' + formatDate(record.created_at) + '</small></div>' +
         '<p>' + escapeHtml(record.body).replace(/\n/g, '<br>') + '</p>' +
       '</article>';
     }).join('');

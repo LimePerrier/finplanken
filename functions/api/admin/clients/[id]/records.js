@@ -11,13 +11,13 @@ export async function onRequestPost({ request, env, params }) {
   if (!user) return json({ error: "Client not found." }, { status: 404 });
 
   const body = await readJson(request);
-  const title = String(body.title || "").trim();
+  const title = String(body.title || "").trim() || "Note";
   const recordBody = String(body.body || "").trim();
   const recordType = String(body.recordType || "note").trim() || "note";
   const visibleToClient = body.visibleToClient ? 1 : 0;
 
-  if (!title || !recordBody) {
-    return json({ error: "Add both a title and details." }, { status: 400 });
+  if (!recordBody) {
+    return json({ error: "Add a note." }, { status: 400 });
   }
 
   const now = new Date().toISOString();
