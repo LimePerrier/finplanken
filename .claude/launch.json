@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "static",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8011"],
-      "port": 8011
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "python3 -m http.server \"$PORT\""],
+      "port": 8011,
+      "autoPort": true
     },
     {
       "name": "dev-ui",
