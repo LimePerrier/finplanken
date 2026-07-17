@@ -49,20 +49,16 @@
       <div>
         <p class="delivery-eyebrow">Personal Financial Plan</p>
         <h1 id="client-name">Client Dashboard</h1>
-        <p class="delivery-subtitle">Planning scenario - retirement projection 2026-2067</p>
+        <p class="delivery-subtitle"></p>
       </div>
-      <div class="delivery-hero-meta">
-        <span>Horizon <b>42 years</b></span>
-        <span>Currency <b>CAD</b></span>
-        <span>Status <b>Current</b></span>
-      </div>
+      <div class="delivery-hero-meta"></div>
     </div>
 
-    <div class="year-control">
+    <div class="year-control" id="year-control" hidden>
       <div>
         <span class="metric-label">Selected Year</span>
-        <strong id="year-label">2026</strong>
-        <small id="age-label">Age 59</small>
+        <strong id="year-label"></strong>
+        <small id="age-label"></small>
       </div>
       <input id="year-slider" type="range" min="0" max="5" value="0">
     </div>
@@ -103,16 +99,6 @@
           <span><i class="legend-assets"></i>Financial Assets</span>
           <span><i class="legend-selected"></i>Selected Year</span>
         </div>
-      </article>
-
-      <article class="delivery-panel">
-        <h2>Plan Assumptions</h2>
-        <dl class="assumption-list">
-          <div><dt>Plan start</dt><dd>2026</dd></div>
-          <div><dt>Retirement age</dt><dd>65</dd></div>
-          <div><dt>Inflation</dt><dd>2.1%</dd></div>
-          <div><dt>Investment return</dt><dd>5.0%</dd></div>
-        </dl>
       </article>
 
       <article class="delivery-panel">
@@ -292,6 +278,7 @@
       renderEmptyDashboard();
       return;
     }
+    document.getElementById('year-control').hidden = false;
     var slider = document.getElementById('year-slider');
     slider.max = String(state.planData.length - 1);
     slider.value = String(state.selectedIndex);
@@ -330,6 +317,9 @@
   }
 
   function renderEmptyDashboard() {
+    document.getElementById('year-control').hidden = true;
+    document.querySelector('.delivery-subtitle').textContent = '';
+    document.querySelector('.delivery-hero-meta').innerHTML = '';
     document.getElementById('metric-grid').innerHTML = '<article class="metric-card dashboard-empty"><span>Dashboard</span><strong>No spreadsheet yet</strong><small>Upload the client projection workbook from the admin portal to populate this dashboard.</small></article>';
     document.getElementById('cashflow-sankey').innerHTML = '<text x="32" y="58">No dashboard data has been uploaded yet.</text>';
     document.getElementById('milestones').innerHTML = '<p class="muted">No milestones available yet.</p>';
