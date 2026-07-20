@@ -765,7 +765,6 @@ form textarea{min-height:140px;resize:vertical}
 .cv-node{position:absolute;transform:translate(-50%,-50%);background:var(--paper);border:1px solid var(--gold);color:var(--forest);font-family:'Inter';font-size:13px;font-weight:600;padding:9px 15px;border-radius:30px;white-space:nowrap;box-shadow:0 12px 26px -20px rgba(20,58,46,.55);z-index:3}
 
 /* ---------- bio: credential cards ---------- */
-.bio-lead{font-family:'Cormorant Garamond';font-style:italic;font-size:24px;line-height:1.4;color:var(--forest);margin-bottom:20px}
 .cred-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 26px;margin-bottom:28px}
 .cred-grid .cred{border-top:2px solid var(--forest);padding-top:16px}
 .cred-grid .cred h4{font-family:'Cormorant Garamond';font-size:25px;font-weight:700;color:var(--forest);margin-bottom:2px}
