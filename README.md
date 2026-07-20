@@ -25,6 +25,34 @@ This repository **is** the site root, so deployment needs no build:
 
 `_headers` (in this folder) adds security headers + asset caching automatically on Cloudflare Pages.
 
+## Editing CSS or JS — cache busting
+
+`assets/styles.css` and `assets/nav.js` keep the same filename forever, and Cloudflare
+caches them for hours. HTML is never cached, so the `?v=` query string on those two
+`<link>`/`<script>` tags is what actually forces visitors to pick up a change. Ship new
+HTML against an unchanged `?v=` and the site renders with the old stylesheet — the layout
+looks broken and no error appears anywhere.
+
+**This is handled for you.** `tools/stamp-assets.mjs` rewrites `?v=` to a hash of each
+file's contents, and `.githooks/pre-commit` runs it on every commit. Enable the hook once
+per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Useful manually too:
+
+```bash
+node tools/stamp-assets.mjs          # restamp now
+node tools/stamp-assets.mjs --check  # exit 1 if stale (for CI)
+```
+
+> Note: the Cloudflare zone's **Browser Cache TTL** setting overrides the `Cache-Control`
+> values in `_headers` — observed serving `max-age=14400` where `_headers` asked for 300.
+> Setting it to *Respect Existing Headers* in the Cloudflare dashboard would make
+> `_headers` authoritative, but the content hash above works regardless.
+
 ## Before going live — replace placeholders
 - [x] Brand / logo in the nav and footer - currently Bracket Planning
 - [x] Email address (top bar, CTAs, footer, contact page) - currently `info@bracketplanning.ca`

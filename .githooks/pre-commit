@@ -1,0 +1,25 @@
+#!/bin/sh
+# Re-stamp assets/styles.css and assets/nav.js with their content hash and
+# stage any HTML the stamp changed. Without this, editing the stylesheet
+# ships new HTML against a cached stylesheet and the site looks broken for
+# hours. See tools/stamp-assets.mjs for the full explanation.
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: node not found, skipping asset stamping" >&2
+  echo "pre-commit: if you changed assets/styles.css or assets/nav.js, bump" >&2
+  echo "            the ?v= string in the HTML by hand before deploying." >&2
+  exit 0
+fi
+
+out=$(node "$(git rev-parse --show-toplevel)/tools/stamp-assets.mjs") || exit 1
+echo "$out"
+
+# stage only files the stamper touched, so unrelated work is left alone
+changed=$(git diff --name-only -- '*.html')
+if [ -n "$changed" ]; then
+  echo "$changed" | while IFS= read -r f; do
+    if git diff -- "$f" | grep -q '^[-+].*?v='; then git add -- "$f"; fi
+  done
+fi
+
+exit 0
