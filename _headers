@@ -8,7 +8,19 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
 
-# Long-cache fingerprint-free assets (logos, fonts handled by Google).
+# Long-cache fingerprint-free assets (logos, images, icons).
 # HTML stays uncached so content edits go live immediately.
 /assets/*
   Cache-Control: public, max-age=86400
+
+# Stylesheet and scripts are edited in place under a stable filename, so a
+# long cache serves stale code until it expires - which it did, silently,
+# when the bio layout shipped against a cached stylesheet. These revalidate
+# on every request instead: unchanged files come back as an empty 304, so
+# the cost is one round trip and the site is never stale. Defined after the
+# /assets/* rule so this Cache-Control wins for these two paths.
+/assets/styles.css
+  Cache-Control: no-cache
+
+/assets/nav.js
+  Cache-Control: no-cache
