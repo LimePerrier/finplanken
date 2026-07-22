@@ -11,7 +11,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=d47ca00c2e">
+<link rel="stylesheet" href="assets/styles.css?v=7b371db991">
+<style>
+  .at-panel{background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:38px 40px;max-width:960px;margin:0 auto}
+  .at-panel h3{font-size:28px;margin-bottom:6px}
+  .at-bar{display:flex;gap:6px;align-items:stretch;height:80px}
+  .at-bar-seg{display:flex;flex:1;gap:4px}
+  .at-bar-seg > div{color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;border-radius:3px;font-size:17px}
+  .at-broke{width:150px;flex:none;background:#6f1c14;color:#fff;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .at-broke b{font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;font-weight:700;line-height:1;color:#fff}
+  .at-broke span{font-size:12px;letter-spacing:.12em;margin-top:2px}
+  .at-legend{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:24px}
+  .at-legend .k{display:inline-flex;align-items:center;gap:8px;font-size:14px}
+  .at-legend i{width:13px;height:13px;border-radius:2px;display:inline-block;flex:none}
+  .at-quote{max-width:840px}
+  .at-quote h3{font-size:34px;color:#fff;margin-bottom:14px}
+  @media(max-width:760px){
+    .at-panel{padding:28px 20px}
+    .at-bar{height:64px}
+    .at-broke{width:92px}
+    .at-broke b{font-size:28px}
+  }
+</style>
 </head>
 <body>
 <div class="utility">
@@ -55,7 +76,7 @@
     <div class="crumbs"><a href="index.html">Home</a> &nbsp;/&nbsp; Professional Athletes</div>
     <div class="eyebrow">Athlete Financial Planning</div>
     <h1>Financial planning for professional athletes.</h1>
-    <p>Advice-only planning for hockey players and other professional athletes, built around a short earning window, an unpredictable career length, and a life that lasts far longer than the contract.</p>
+    <p>Most professional athletes earn a fortune in a few short years — and most of them lose all of it. We build advice-only plans for hockey players and other athletes so you don't become the next cautionary tale.</p>
     <div class="actions" style="margin-top:28px"><a class="btn" href="contact.html">Book with Us</a></div>
   </div>
 </div>
@@ -63,19 +84,33 @@
 <section>
   <div class="container">
     <div class="section-head center">
-      <div class="eyebrow center">Why This Matters</div>
-      <h2>Earning a lot is not the same as keeping it.</h2>
-      <p>We reviewed a widely reported sample of 50 former NHL players who ran into serious financial trouble after their playing days. Forty-eight of them had publicly reported career earnings, and together those minimums exceed <strong>one billion dollars</strong>. High income was never the problem.</p>
+      <div class="eyebrow center">Our Research</div>
+      <h2>We studied how the money disappears, and why.</h2>
+      <p>We reviewed a widely reported sample of 50 former NHL players who together earned more than <strong>one billion dollars</strong> and still ran into serious financial trouble. Looking at how and why it happened tells us a great deal about what athletes actually need from a plan. High income was never the problem.</p>
     </div>
-    <div class="grid cols-3">
-      <div class="card"><div class="knum">14</div><h3>Failed ventures and bad investments</h3><p>The single most common thread. Restaurants, real estate, private deals brought by people inside the locker room and outside it, concentrated bets made with no plan behind them.</p></div>
-      <div class="card"><div class="knum">13</div><h3>Addiction and substance issues</h3><p>Health and financial collapse are rarely separate events. A plan that assumes uninterrupted earning power is a plan with no margin for the hardest years.</p></div>
-      <div class="card"><div class="knum">7</div><h3>Divorce and family breakdown</h3><p>Marriage breakdown mid-career or shortly after retirement reshapes asset division, support obligations, housing and every retirement projection built before it.</p></div>
-      <div class="card"><div class="knum">6</div><h3>Filed for bankruptcy outright</h3><p>Several of them after eight-figure careers. In more than one case the money was managed by family or by an advisor with an undisclosed conflict.</p></div>
-      <div class="card"><div class="knum">5</div><h3>Gambling losses</h3><p>Including one player who earned more than $60 million and still filed. Sports betting access has expanded sharply since most of these careers ended.</p></div>
-      <div class="card"><div class="knum">4</div><h3>Career ended early, no plan in place</h3><p>Injury, waivers or a buyout arriving years before anyone expected. The players who struggled most were often the ones whose plan assumed the next contract.</p></div>
+    <div class="at-panel">
+      <h3>What we found</h3>
+      <p class="muted" style="margin-bottom:26px">Not one fortune was lost on the ice. Every one was lost off it.</p>
+      <div style="font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px">$1B+ Earned</div>
+      <div class="at-bar">
+        <div class="at-bar-seg">
+          <div style="flex:17;background:var(--gold)">17</div>
+          <div style="flex:15;background:var(--forest2)">15</div>
+          <div style="flex:9;background:var(--gold-d)">9</div>
+          <div style="flex:5;background:var(--forest-l)">5</div>
+          <div style="flex:4;background:#8a2b21">4</div>
+        </div>
+        <div class="at-broke"><b>$0</b><span>BROKE</span></div>
+      </div>
+      <div class="at-legend">
+        <span class="k"><i style="background:var(--gold)"></i>Addiction &amp; gambling</span>
+        <span class="k"><i style="background:var(--forest2)"></i>Bad investments &amp; business</span>
+        <span class="k"><i style="background:var(--gold-d)"></i>Legal disputes &amp; other</span>
+        <span class="k"><i style="background:var(--forest-l)"></i>Overspending</span>
+        <span class="k"><i style="background:#8a2b21"></i>Divorce &amp; family</span>
+      </div>
+      <p class="muted" style="margin-top:24px;font-size:13px">Number of players by primary cause of financial ruin, from a review of 50 NHL careers that ended in loss. Our own categorization of publicly reported accounts; categories overlap and we name no individuals.</p>
     </div>
-    <p class="muted" style="margin-top:28px;text-align:center;max-width:760px;margin-left:auto;margin-right:auto;font-size:14px">Figures reflect our own categorization of publicly reported accounts and are used to illustrate common patterns. Categories overlap; many of these situations involved more than one factor. We name no individuals.</p>
   </div>
 </section>
 
@@ -98,44 +133,10 @@
   </div>
 </section>
 
-<section>
-  <div class="container">
-    <div class="section-head center">
-      <div class="eyebrow center">Planning Scope</div>
-      <h2>What athlete planning can include.</h2>
-    </div>
-    <div class="services-intro">
-      <div>
-        <h3 style="font-size:34px;margin-bottom:14px">Advice with no product to sell you.</h3>
-        <p class="muted">We do not sell investments, we do not take custody of your money, and we do not require assets to be transferred to us. That matters in a profession where a striking number of financial failures trace back to someone who was paid to place the money rather than paid to give the advice. Our role is to build the plan, coordinate with your agent, accountant and lawyer, and keep it current as your contract, team and life change.</p>
-      </div>
-      <div class="services-index">
-        <a href="services.html#tax">Contract and compensation tax planning</a>
-        <a href="services.html#tax">Cross-border and residency planning</a>
-        <a href="services.html#wealth">Investment policy and conflict review</a>
-        <a href="services.html#corporate">Endorsement and business income structuring</a>
-        <a href="services.html#retirement">Post-career income planning</a>
-        <a href="services.html#estate">Estate, family and asset protection planning</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section class="bg-forest">
-  <div class="container split narrow">
-    <div>
-      <div class="eyebrow" style="color:var(--gold-l)">Good Fit</div>
-      <h2>The best time to build this is while the contract is still running.</h2>
-      <p style="color:#bcd0c7;margin-top:18px">Almost every situation in that sample became unrecoverable after the income stopped. Planning done during the earning years is the difference between a career that funds the next fifty years and one that funds the next five.</p>
-    </div>
-    <ul class="ticklist">
-      <li>You are entering your first professional contract or your first significant one</li>
-      <li>You are being approached with investment or business opportunities and want an independent read</li>
-      <li>You play or train across borders and want your tax and residency situation coordinated</li>
-      <li>You are managing endorsement, appearance or business income alongside salary</li>
-      <li>You are approaching the end of your playing career and planning what comes next</li>
-      <li>You want advice-only planning from someone with no commission on the outcome</li>
-    </ul>
+  <div class="container at-quote">
+    <h3>"Let me check with my planner."</h3>
+    <p style="color:#bcd0c7;font-size:17px">Players get pitched deals constantly, often by family and friends. Those five words let you say no without saying no. We are the neutral filter between you and the deal that ends careers.</p>
   </div>
 </section>
 

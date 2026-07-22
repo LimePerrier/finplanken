@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=d47ca00c2e">
+<link rel="stylesheet" href="assets/styles.css?v=7b371db991">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="portal-body">
@@ -36,6 +36,16 @@
       <div id="client-detail" class="client-detail empty">Select a client to view their data.</div>
     </div>
   </section>
+
+  <section class="admin-grid">
+    <div class="admin-card admin-card-full">
+      <div class="admin-card-head">
+        <h2>Subscriptions</h2>
+        <button class="btn ghost" id="refresh-subs" type="button">Refresh</button>
+      </div>
+      <div id="subscription-list" class="subscription-list"><p class="muted">Enter your admin token to load subscriptions.</p></div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -49,6 +59,7 @@
   tokenInput.addEventListener('change', function () {
     sessionStorage.setItem('bp_admin_token', tokenInput.value);
     loadClients();
+    loadSubscriptions();
   });
 
   function adminHeaders() {
@@ -482,6 +493,80 @@
     return value ? new Date(value).toLocaleString() : '';
   }
 
+  var subList = document.getElementById('subscription-list');
+  var refreshSubs = document.getElementById('refresh-subs');
+  if (refreshSubs) refreshSubs.addEventListener('click', loadSubscriptions);
+  // Helcim owns live billing detail (amounts, payment history). We deep-link
+  // to the dashboard rather than mirror it; no reliable per-subscription URL
+  // exists, so we link to the app and show the Helcim IDs to search by.
+  var HELCIM_APP_URL = 'https://app.helcim.com';
+
+  async function loadSubscriptions() {
+    if (!tokenInput.value) {
+      subList.innerHTML = '<p class="muted">Enter your admin token to load subscriptions.</p>';
+      return;
+    }
+    subList.innerHTML = '<p class="muted">Loading subscriptions...</p>';
+    try {
+      var data = await api('/api/admin/subscriptions');
+      if (!data.subscriptions.length) {
+        subList.innerHTML = '<p class="muted">No subscriptions yet.</p>';
+        return;
+      }
+      var rows = data.subscriptions.map(function (s) {
+        var flag = (s.cancellationRequestedAt && s.status !== 'cancelled')
+          ? ' <span class="status-badge disabled">Cancellation requested</span>'
+          : '';
+        var helcimId = s.helcimSubscriptionId
+          ? 'Sub ' + escapeHtml(s.helcimSubscriptionId)
+          : 'no Helcim ID';
+        var helcimCust = s.helcimCustomerCode ? '<br><small class="muted">Cust ' + escapeHtml(s.helcimCustomerCode) + '</small>' : '';
+        var helcimCell =
+          '<a href="' + HELCIM_APP_URL + '" target="_blank" rel="noopener">View in Helcim ↗</a>' +
+          '<br><small class="muted">' + helcimId + '</small>' + helcimCust;
+        var action = (s.status !== 'cancelled')
+          ? '<button class="btn ghost small-btn mark-cancelled" type="button" data-id="' + escapeAttr(s.id) + '">Mark cancelled</button>'
+          : '<span class="muted">—</span>';
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(s.name || s.email || '—') + '</strong><br><small class="muted">' + escapeHtml(s.email || '') + '</small></td>' +
+          '<td>' + escapeHtml(s.tierName) + '<br><small class="muted">' + escapeHtml(s.paymentMethodLabel) + '</small></td>' +
+          '<td>' + statusBadge(s.status) + flag + '</td>' +
+          '<td>' + helcimCell + '</td>' +
+          '<td>' + action + '</td>' +
+        '</tr>';
+      }).join('');
+      subList.innerHTML =
+        '<table class="subscription-table"><thead><tr>' +
+        '<th>Client</th><th>Plan</th><th>Status</th><th>Helcim</th><th></th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<p class="muted small-note">Amounts and payment history live in Helcim. Cancel billing in Helcim first, then use “Mark cancelled” here to sync this list.</p>';
+
+      subList.querySelectorAll('.mark-cancelled').forEach(function (btn) {
+        btn.addEventListener('click', function () { markCancelled(btn); });
+      });
+    } catch (error) {
+      subList.innerHTML = '<p class="portal-status">' + escapeHtml(error.message) + '</p>';
+    }
+  }
+
+  async function markCancelled(btn) {
+    var id = btn.getAttribute('data-id');
+    if (!confirm('Mark this subscription cancelled in your records? Do this only after cancelling billing in the Helcim dashboard.')) return;
+    btn.disabled = true;
+    btn.textContent = 'Updating…';
+    try {
+      await api('/api/admin/subscriptions/' + encodeURIComponent(id), {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'cancelled' })
+      });
+      loadSubscriptions();
+    } catch (error) {
+      btn.disabled = false;
+      btn.textContent = 'Mark cancelled';
+      alert(error.message || 'Could not update. Try again.');
+    }
+  }
+
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"']/g, function (char) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
@@ -493,6 +578,7 @@
   }
 
   loadClients();
+  loadSubscriptions();
 })();
 </script>
 </body>

@@ -3,6 +3,8 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing, Rect, String
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import (
     BaseDocTemplate,
     Frame,
@@ -26,6 +28,18 @@ PAPER = colors.HexColor("#fffefb")
 INK = colors.HexColor("#1d2722")
 MUTED = colors.HexColor("#5d6962")
 LINE = colors.HexColor("#e3dccb")
+SAGE = colors.HexColor("#6f8f7d")
+RUST = colors.HexColor("#9c4a2e")
+BROKE = colors.HexColor("#7a1f14")
+
+# label, count (of 50), segment color
+CAUSES = [
+    ("Addiction & gambling", 17, GOLD),
+    ("Bad investments & business", 15, FOREST_2),
+    ("Legal disputes & other", 9, GOLD_D),
+    ("Overspending", 5, SAGE),
+    ("Divorce & family", 4, RUST),
+]
 
 
 def pstyle(name, size=9, leading=12, color=INK, font="Helvetica", space_after=0, alignment=TA_LEFT):
@@ -62,6 +76,54 @@ styles = {
 
 def bullet(text, style="body"):
     return Paragraph(f"<font color='#9c7831'>+</font>&nbsp;&nbsp;{text}", styles[style])
+
+
+def flow_chart(data, width=6.5 * inch):
+    """A single fortune, segmented by cause, flowing into a $0 / BROKE endcap.
+    data = [(label, count, color), ...] out of 50."""
+    total = sum(c for _, c, _ in data)
+    endcap_w = 90
+    gap = 12
+    bar_w = width - endcap_w - gap
+    bar_h = 46
+    height = 132
+
+    bar_y = 62
+    d = Drawing(width, height)
+
+    # "$1B+ EARNED" label above the bar
+    d.add(String(0, bar_y + bar_h + 8, "$1B+ EARNED", fontSize=8.5,
+                 fontName="Helvetica-Bold", fillColor=FOREST, textAnchor="start"))
+
+    # segmented bar
+    x = 0
+    for label, count, col in data:
+        w = bar_w * (count / total)
+        d.add(Rect(x, bar_y, w, bar_h, fillColor=col, strokeColor=colors.white, strokeWidth=1))
+        d.add(String(x + w / 2, bar_y + bar_h / 2 - 4, str(count), fontSize=11,
+                     fontName="Helvetica-Bold", fillColor=colors.white, textAnchor="middle"))
+        x += w
+
+    # BROKE endcap
+    ex = bar_w + gap
+    d.add(Rect(ex, bar_y - 6, endcap_w, bar_h + 12, fillColor=BROKE, strokeColor=None))
+    d.add(String(ex + endcap_w / 2, bar_y + bar_h / 2 + 1, "$0", fontSize=20,
+                 fontName="Times-Bold", fillColor=colors.white, textAnchor="middle"))
+    d.add(String(ex + endcap_w / 2, bar_y + bar_h / 2 - 15, "BROKE", fontSize=8,
+                 fontName="Helvetica-Bold", fillColor=colors.HexColor("#e8c9c2"), textAnchor="middle"))
+
+    # legend, wrapped across up to two rows
+    rows = [data[:3], data[3:]]
+    ly = 34
+    for row in rows:
+        lx = 0
+        for label, count, col in row:
+            d.add(Rect(lx, ly - 1, 9, 9, fillColor=col, strokeColor=None))
+            d.add(String(lx + 14, ly, label, fontSize=7.6, fontName="Helvetica",
+                         fillColor=INK, textAnchor="start"))
+            lx += 14 + stringWidth(label, "Helvetica", 7.6) + 26
+        ly -= 16
+    return d
 
 
 def draw_page(canvas, doc):
@@ -111,36 +173,21 @@ story = []
 
 # ---------------------------------------------------------------- PAGE 1
 intro_left = [
-    Paragraph("Private wealth planning for professional athletes", styles["eyebrow"]),
-    Paragraph("Your career is short. Your money should last a lifetime.", styles["h1"]),
+    Paragraph("The reality of a professional career", styles["eyebrow"]),
+    Paragraph("Private wealth planning for professional athletes", styles["h1"]),
     Paragraph(
-        "A professional athlete can earn in a few short years what most people earn in a lifetime, then live "
-        "off it for fifty more. The pressures are unique: sudden wealth, cross-border taxes, a constant stream of "
-        "investment pitches, and family and friends who need answers.",
-        styles["body"],
-    ),
-    Paragraph(
-        "We are independent, advice-only planners. We are paid one flat fee, never a commission and never a cut of "
-        "your assets. Our only job is to protect what you have earned and make sure it lasts a lifetime.",
+        "They earn a fortune in a few short years. Most of them lose all of it. "
+        "<b>We make sure you don't.</b>",
         styles["body"],
     ),
 ]
 
 intro_right = [
-    Paragraph("THE RETAINER", styles["gold_white"]),
-    Paragraph("One flat fee.", styles["white_h"]),
-    Paragraph("$20,000", styles["white_big"]),
-    Paragraph("Starting point, per year", styles["gold_white"]),
-    Spacer(1, 4),
-    Paragraph(
-        "No products sold. No commissions. No percentage of your portfolio. You pay a transparent annual retainer, "
-        "priced on the complexity of your situation, not the size of your accounts.",
-        styles["white_small"],
-    ),
-    Paragraph(
-        "Our advice is neutral, unbiased and always in your corner.",
-        styles["gold_white"],
-    ),
+    Paragraph("THE HARD TRUTH", styles["gold_white"]),
+    Paragraph("$1B+", styles["white_big"]),
+    Paragraph("earned, then gone", styles["gold_white"]),
+    Spacer(1, 6),
+    Paragraph("50 NHL players. Every one broke.", styles["white_small"]),
 ]
 
 intro = Table(
@@ -158,20 +205,51 @@ intro = Table(
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
     ],
 )
-story += [intro, Spacer(1, 12)]
+story += [intro, Spacer(1, 16)]
+
+# --- Our research: why this brochure exists
+story.append(Paragraph("Our research", styles["eyebrow"]))
+story.append(Paragraph("We studied how the money disappears, and why.", styles["h2"]))
+story.append(
+    Paragraph(
+        "We reviewed 50 NHL players who together earned more than a billion dollars and still ran into serious "
+        "financial trouble. Looking at how and why it happened tells us a great deal about what athletes actually "
+        "need from a plan. Our approach is shaped by those lessons.",
+        styles["body"],
+    )
+)
+story.append(Spacer(1, 14))
+
+# --- Graphical "how the money disappears" flow chart (the findings)
+chart_cell = [
+    Paragraph("What we found", styles["h2"]),
+    Paragraph("Not one fortune was lost on the ice. Every one was lost off it.", styles["muted"]),
+    Spacer(1, 12),
+    flow_chart(CAUSES),
+    Spacer(1, 6),
+    Paragraph("Number of players by primary cause of financial ruin. From a review of 50 NHL careers that ended in loss.", styles["small"]),
+]
+chart_card = Table(
+    [[chart_cell]],
+    colWidths=[7.0 * inch],
+    style=[
+        ("BACKGROUND", (0, 0), (-1, -1), CREAM),
+        ("BOX", (0, 0), (-1, -1), 0.6, LINE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 18),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 18),
+        ("TOPPADDING", (0, 0), (-1, -1), 14),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ],
+)
+story += [chart_card, Spacer(1, 18)]
 
 # --- The guardrail / "check with my planner" signature message
 guard_left = [
     Paragraph('"Let me check with my planner."', styles["white_h"]),
     Paragraph(
-        "Players are approached constantly with investment opportunities and business schemes, and many of them "
-        "come from family and friends. Being able to say <b>&ldquo;I have to check with my financial planner "
-        "first&rdquo;</b> takes you out of the uncomfortable position of saying no.",
-        styles["white"],
-    ),
-    Paragraph(
-        "We become the neutral filter. Careers of earnings have been lost to a single bad deal. We make "
-        "sure yours is not one of them.",
+        "Players get pitched deals constantly, often by family and friends. Those five words let you say no "
+        "without saying no. We are the neutral filter between you and the deal that ends careers.",
         styles["white"],
     ),
 ]
@@ -187,14 +265,14 @@ guard = Table(
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
     ],
 )
-story += [guard, Spacer(1, 12)]
+story += [guard, Spacer(1, 18)]
 
 # --- Who it's for
 who_left = [
     Paragraph("Built for players and the people around them", styles["h2"]),
     Paragraph(
-        "The right time to plan is before the money arrives, and the people closest to a player are often the ones "
-        "carrying the pressure. That is why we work with the whole family, not just the athlete.",
+        "The pressure often falls on the people closest to a player. We plan with the whole family, not just "
+        "the athlete.",
         styles["body"],
     ),
 ]
@@ -219,50 +297,7 @@ who = Table(
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
     ],
 )
-story += [who, Spacer(1, 10)]
-
-story.append(Paragraph("Our planning model", styles["eyebrow"]))
-story.append(Paragraph("Independent, fee-based, and built around your decisions.", styles["h2"]))
-story.append(
-    Paragraph(
-        "Because we do not sell investments, we have no reason to steer you toward any product. We are "
-        "paid the same flat retainer whether you buy, sell or wait. That independence is the whole point: "
-        "neutral, unbiased advice you can trust for decades, not a single season.",
-        styles["body"],
-    )
-)
-story.append(Spacer(1, 12))
-
-# --- Why athletes plan differently strip
-def why_cell(num, title, text):
-    return [
-        Paragraph(num, styles["why_num"]),
-        Paragraph(title, styles["small_bold"]),
-        Paragraph(text, styles["small"]),
-    ]
-
-why = Table(
-    [[
-        why_cell("A short window", "Peak earning years",
-                 "A career can be measured in years. The plan has to capture the earnings while they are here."),
-        why_cell("Sudden wealth", "Money before experience",
-                 "Large sums arrive early, often before the financial experience to manage them has been built."),
-        why_cell("A 50-year runway", "Retired young",
-                 "Most athletes retire decades before their peers. The income has to stretch across a long life."),
-    ]],
-    colWidths=[2.333 * inch, 2.333 * inch, 2.333 * inch],
-    style=[
-        ("BACKGROUND", (0, 0), (-1, -1), CREAM),
-        ("BOX", (0, 0), (-1, -1), 0.6, LINE),
-        ("INNERGRID", (0, 0), (-1, -1), 0.5, LINE),
-        ("LEFTPADDING", (0, 0), (-1, -1), 13),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 13),
-        ("TOPPADDING", (0, 0), (-1, -1), 12),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-    ],
-)
-story.append(why)
+story += [who]
 
 story.append(PageBreak())
 
@@ -389,7 +424,7 @@ cta_left = [
 cta_right = [
     Paragraph("START THE CONVERSATION", styles["gold_white"]),
     Paragraph("info@bracketplanning.ca", styles["white_h"]),
-    Paragraph("Independent advice-only planning, from $20,000 / year.", styles["white_small"]),
+    Paragraph("Independent, advice-only planning. No products, no commissions.", styles["white_small"]),
 ]
 cta = Table(
     [[cta_left, cta_right]],

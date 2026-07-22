@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkout - Bracket Planning</title>
+<meta name="description" content="Start your Bracket Planning engagement: choose your plan, sign the letter of engagement, and set up secure semi-annual payments by credit or debit.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="assets/bracket-planning-icon.svg">
+<link rel="alternate icon" type="image/png" href="assets/bracket-planning-icon.png">
+<link rel="apple-touch-icon" href="assets/bracket-planning-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css?v=7b371db991">
+</head>
+<body>
+<div class="utility">
+  <div class="container">
+    <div class="u-left"><span class="util-placeholder">info@bracketplanning.ca</span></div>
+    <div class="u-right">Independent - Advice-Only</div>
+  </div>
+</div>
+
+<header class="site-header">
+  <nav class="container nav">
+    <a class="logo" href="index.html"><span class="logo-concept logo-option-5"><span class="brand-mark bp-mark-5" aria-hidden="true"><span></span></span><span class="txt"><b>Bracket Planning</b><small>Advice-only financial planning</small></span></span></a>
+    <div class="menu">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="about.html">About Us</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link" href="fees.html">Pricing</a>
+      <a class="nav-link" href="contact.html">Contact</a>
+      <a class="btn ghost login-btn" href="login.html">Client Login</a>
+    </div>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="crumbs"><a href="index.html">Home</a> &nbsp;/&nbsp; <a href="fees.html">Pricing</a> &nbsp;/&nbsp; Checkout</div>
+    <div class="eyebrow">Start Your Engagement</div>
+    <h1>Checkout.</h1>
+    <p>A few short steps: confirm your plan, sign the letter of engagement, and set up secure payment.</p>
+  </div>
+</div>
+
+<section class="bg-cream">
+  <div class="container checkout-wrap">
+
+    <!-- Progress -->
+    <ol class="checkout-steps" id="stepbar">
+      <li data-step="1"><span>1</span> Your plan</li>
+      <li data-step="2"><span>2</span> Your details</li>
+      <li data-step="3"><span>3</span> Engagement letter</li>
+      <li data-step="4"><span>4</span> Payment method</li>
+      <li data-step="5"><span>5</span> Pay</li>
+    </ol>
+
+    <div class="checkout-grid">
+      <main class="checkout-main">
+
+        <!-- STEP 1: PLAN -->
+        <section class="co-panel" id="panel-1">
+          <h2>Choose your plan</h2>
+          <div class="co-tier-select" id="tier-select"></div>
+
+          <div class="co-plantype" id="plantype-select">
+            <label class="co-radio">
+              <input type="radio" name="plantype" value="retainer" checked>
+              <span><b>Semi-annual retainer</b><small>Ongoing planning, billed every 6 months. Cancel any time after the first year.</small></span>
+            </label>
+            <label class="co-radio">
+              <input type="radio" name="plantype" value="plan_only">
+              <span><b>One-time financial plan</b><small>A comprehensive plan delivered once, paid in a single payment.</small></span>
+            </label>
+          </div>
+
+          <div class="co-actions">
+            <a class="btn ghost" href="fees.html">Back to pricing</a>
+            <button class="btn" type="button" data-next="2">Continue</button>
+          </div>
+        </section>
+
+        <!-- STEP 2: DETAILS -->
+        <section class="co-panel" id="panel-2" hidden>
+          <h2>Your details</h2>
+          <p class="muted co-sub">We use your province to calculate the correct GST/HST, and your email to create your secure client portal.</p>
+          <form id="details-form" class="co-form" novalidate>
+            <label>Full name<input id="f-name" type="text" autocomplete="name" required></label>
+            <label>Email<input id="f-email" type="email" autocomplete="email" required></label>
+            <label>Province / Territory
+              <select id="f-province" required>
+                <option value="">Select…</option>
+                <option value="AB">Alberta</option>
+                <option value="BC">British Columbia</option>
+                <option value="MB">Manitoba</option>
+                <option value="NB">New Brunswick</option>
+                <option value="NL">Newfoundland and Labrador</option>
+                <option value="NT">Northwest Territories</option>
+                <option value="NS">Nova Scotia</option>
+                <option value="NU">Nunavut</option>
+                <option value="ON">Ontario</option>
+                <option value="PE">Prince Edward Island</option>
+                <option value="QC">Quebec</option>
+                <option value="SK">Saskatchewan</option>
+                <option value="YT">Yukon</option>
+              </select>
+            </label>
+            <label>Discount code <span class="co-optional">(optional)</span><input id="f-code" type="text" autocomplete="off" autocapitalize="characters"></label>
+            <div class="co-status" id="details-status" role="alert"></div>
+            <div class="co-actions">
+              <button class="btn ghost" type="button" data-prev="1">Back</button>
+              <button class="btn" type="submit" id="details-submit">Continue</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- STEP 3: ENGAGEMENT LETTER -->
+        <section class="co-panel" id="panel-3" hidden>
+          <h2 id="eng-title">Letter of Engagement</h2>
+          <p class="muted co-sub">Please read our engagement terms and sign to continue.</p>
+          <div class="co-legal" id="eng-body" tabindex="0"></div>
+          <form id="eng-form" class="co-form">
+            <label class="co-check">
+              <input type="checkbox" id="eng-agree" required>
+              <span>I have read and agree to the Letter of Engagement.</span>
+            </label>
+            <label>Type your full name to sign<input id="eng-sign" type="text" autocomplete="name" required></label>
+            <div class="co-status" id="eng-status" role="alert"></div>
+            <div class="co-actions">
+              <button class="btn ghost" type="button" data-prev="2">Back</button>
+              <button class="btn" type="submit" id="eng-submit">Agree &amp; sign</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- STEP 4: PAYMENT METHOD -->
+        <section class="co-panel" id="panel-4" hidden>
+          <h2>How would you like to pay?</h2>
+          <div class="co-method">
+            <button class="co-method-card" type="button" data-method="cc">
+              <span class="co-method-ic" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg>
+              </span>
+              <b>Credit card</b>
+              <small>Visa, Mastercard, Amex. Processed securely by Helcim.</small>
+            </button>
+            <button class="co-method-card" type="button" data-method="ach">
+              <span class="co-method-ic" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18"></path><path d="M4 10h16"></path><path d="M12 3 21 8H3z"></path><path d="M6 10v8M18 10v8M12 10v8"></path></svg>
+              </span>
+              <b>Debit from bank account (PAD)</b>
+              <small>Pre-authorized debit. Lower fees. You'll accept a PAD agreement next.</small>
+            </button>
+          </div>
+
+          <!-- PAD agreement, shown only for debit -->
+          <div id="pad-block" hidden>
+            <h3 class="co-subhead" id="pad-title">Pre-Authorized Debit Agreement</h3>
+            <div class="co-legal" id="pad-body" tabindex="0"></div>
+            <form id="pad-form" class="co-form">
+              <label class="co-check">
+                <input type="checkbox" id="pad-agree" required>
+                <span>I agree to the PAD agreement and confirm I am an authorized signatory on the bank account.</span>
+              </label>
+              <label>Type your full name to sign<input id="pad-sign" type="text" autocomplete="name" required></label>
+              <div class="co-status" id="pad-status" role="alert"></div>
+            </form>
+          </div>
+
+          <div class="co-status" id="method-status" role="alert"></div>
+          <div class="co-actions">
+            <button class="btn ghost" type="button" data-prev="3">Back</button>
+            <button class="btn" type="button" id="to-pay" hidden>Continue to payment</button>
+          </div>
+        </section>
+
+        <!-- STEP 5: PAY -->
+        <section class="co-panel" id="panel-5" hidden>
+          <h2>Secure payment</h2>
+          <p class="muted co-sub">Your payment is processed securely by Helcim. Bracket Planning never sees your card or bank number.</p>
+          <div class="co-status" id="pay-status" role="alert"></div>
+          <div id="pay-loading" class="co-pay-loading">Opening secure payment…</div>
+          <div class="co-actions">
+            <button class="btn ghost" type="button" data-prev="4">Back</button>
+            <button class="btn" type="button" id="open-pay" hidden>Open payment window</button>
+          </div>
+        </section>
+
+        <!-- DONE -->
+        <section class="co-panel" id="panel-done" hidden>
+          <div class="co-done">
+            <div class="co-done-ic" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"></path></svg>
+            </div>
+            <h2>You're all set.</h2>
+            <p id="done-msg" class="muted"></p>
+            <div id="done-setup" hidden>
+              <p class="muted" style="margin-top:6px" id="done-setup-note">Finish creating your client portal so you can view your plan and documents:</p>
+              <a class="btn" id="done-setup-link" href="#">Set up my portal account</a>
+            </div>
+            <p class="muted" style="margin-top:18px">A confirmation has been recorded. Questions? Email <span class="email">info@bracketplanning.ca</span>.</p>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ORDER SUMMARY -->
+      <aside class="checkout-summary">
+        <h3>Order summary</h3>
+        <div class="co-sum-row"><span>Plan</span><b id="sum-tier">—</b></div>
+        <div class="co-sum-row"><span id="sum-plan-label">Billing</span><b id="sum-plan">—</b></div>
+        <div class="co-sum-row co-sum-discount" id="sum-discount-row" hidden><span id="sum-discount-label">Discount</span><b id="sum-discount">—</b></div>
+        <div class="co-sum-divider"></div>
+        <div class="co-sum-row"><span>Subtotal</span><b id="sum-base">—</b></div>
+        <div class="co-sum-row"><span id="sum-tax-label">GST/HST</span><b id="sum-tax">—</b></div>
+        <div class="co-sum-divider"></div>
+        <div class="co-sum-row co-sum-total"><span id="sum-total-label">Total due</span><b id="sum-total">—</b></div>
+        <p class="co-sum-note" id="sum-note">Fees exclude GST/HST until your province is selected.</p>
+        <div class="co-sum-trust">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+          Secured by Helcim - PCI compliant
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <a class="logo" href="index.html"><span class="logo-concept logo-option-5"><span class="brand-mark bp-mark-5" aria-hidden="true"><span></span></span><span class="txt"><b>Bracket Planning</b><small>Advice-only financial planning</small></span></span></a>
+        <p class="about">Independent, advice-only comprehensive financial planning. Operating under the corporate entity Wealth Architects Inc.</p>
+      </div>
+      <div><h5>Explore</h5><ul><li><a href="physicians.html">Physicians</a></li><li><a href="about.html">About Us</a></li><li><a href="services.html">Services</a></li><li><a href="fees.html">Pricing</a></li></ul></div>
+      <div><h5>More</h5><ul><li><a href="testimonials.html">Testimonials</a></li><li><a href="contact.html">Contact</a></li><li><a href="login.html">Client Login</a></li></ul></div>
+      <div><h5>Get in touch</h5><ul><li><span class="util-placeholder">info@bracketplanning.ca</span></li><li>Alberta | St. John's</li><li>Serving clients across Canada</li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year">2026</span> Bracket Planning - operates under Wealth Architects Inc.</span>
+      <span>Independent - Advice-Only</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://secure.helcim.app/helcim-pay/services/start.js"></script>
+<script src="assets/nav.js?v=5241a4e864"></script>
+<script src="assets/checkout.js?v=20260720-4"></script>
+</body>
+</html>

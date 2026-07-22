@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=d47ca00c2e">
+<link rel="stylesheet" href="assets/styles.css?v=7b371db991">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -42,6 +42,7 @@
     <button class="delivery-tab" type="button" data-tab="commentary">Commentary</button>
     <button class="delivery-tab" type="button" data-tab="report">Full Report</button>
     <button class="delivery-tab" type="button" data-tab="questionnaire">Questionnaire</button>
+    <button class="delivery-tab" type="button" data-tab="billing">Billing</button>
   </nav>
 
   <section id="tab-dashboard" class="delivery-view active">
@@ -174,6 +175,22 @@
       </div>
     </article>
   </section>
+
+  <section id="tab-billing" class="delivery-view">
+    <article class="delivery-panel">
+      <div class="panel-head">
+        <div>
+          <p class="delivery-eyebrow">Your Engagement</p>
+          <h2>Billing &amp; Subscription</h2>
+          <p class="muted">Your current plan and payment schedule.</p>
+        </div>
+        <span id="billing-status-badge" class="status-badge invited">Loading</span>
+      </div>
+      <div id="billing-body">
+        <p class="muted">Loading your subscription…</p>
+      </div>
+    </article>
+  </section>
 </main>
 
 <footer class="site-footer">
@@ -240,6 +257,7 @@
   await loadQuestionnaire();
   setupAttachments();
   await loadAttachments();
+  await loadBilling();
 
   function setupTabs() {
     Array.prototype.forEach.call(document.querySelectorAll('.delivery-tab'), function (button) {
@@ -263,6 +281,119 @@
     document.getElementById('year-slider').addEventListener('input', function (event) {
       state.selectedIndex = Number(event.target.value);
       renderPlan();
+    });
+  }
+
+  async function loadBilling() {
+    var body = document.getElementById('billing-body');
+    var badge = document.getElementById('billing-status-badge');
+    var res;
+    try {
+      res = await fetch('/api/client/subscription');
+    } catch (e) {
+      badge.hidden = true;
+      body.innerHTML = '<p class="muted">Could not load billing details right now.</p>';
+      return;
+    }
+    if (!res.ok) {
+      badge.hidden = true;
+      body.innerHTML = '<p class="muted">Could not load billing details right now.</p>';
+      return;
+    }
+    var data = await res.json();
+    var sub = data.subscription;
+
+    if (!sub) {
+      badge.hidden = true;
+      body.innerHTML =
+        '<p class="muted">You don’t have an active subscription on file. If you believe this is an error, contact ' +
+        '<a href="mailto:info@bracketplanning.ca">info@bracketplanning.ca</a>.</p>';
+      return;
+    }
+
+    badge.hidden = false;
+    badge.className = 'status-badge ' + (sub.status === 'active' ? 'active' : 'invited');
+    badge.textContent = sub.status === 'active' ? 'Active' : sub.status.charAt(0).toUpperCase() + sub.status.slice(1);
+
+    // Amount is fixed by the plan (not drift-prone), so we show it. We
+    // deliberately omit an exact "next payment" date — that lives in Helcim
+    // and a calculated guess here could drift out of sync.
+    var rows = [
+      ['Plan', esc(sub.tierName)],
+      ['Amount', esc(sub.amount) + ' <span class="muted">' + esc(sub.cadenceLabel).toLowerCase() + '</span>'],
+      ['Payment method', esc(sub.paymentMethodLabel)],
+      ['Started', sub.activatedAt ? esc(formatDate(sub.activatedAt.slice(0, 10))) : '—']
+    ];
+    var rowsHtml = rows.map(function (r) {
+      return '<div class="billing-row"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>';
+    }).join('');
+
+    var cancelHtml;
+    if (sub.cancellationRequested) {
+      cancelHtml =
+        '<div class="billing-note">A cancellation request has been received. Our team will confirm by email. ' +
+        'Your plan stays active until we process it.</div>';
+    } else {
+      var commitmentNote = sub.commitmentMet
+        ? ''
+        : '<p class="muted small-note">Your engagement includes a first-year commitment (the first two semi-annual ' +
+          'payments). Requesting cancellation is fine — our team will review timing with you.</p>';
+      cancelHtml =
+        '<div class="billing-cancel">' +
+        '<button type="button" class="btn ghost" id="request-cancel-btn">Request cancellation</button>' +
+        commitmentNote +
+        '</div>';
+    }
+
+    body.innerHTML =
+      '<div class="billing-rows">' + rowsHtml + '</div>' +
+      cancelHtml +
+      '<p class="muted small-note">Questions about your billing? Email ' +
+      '<a href="mailto:info@bracketplanning.ca">info@bracketplanning.ca</a>.</p>';
+
+    var btn = document.getElementById('request-cancel-btn');
+    if (btn) btn.addEventListener('click', requestCancellation);
+  }
+
+  async function requestCancellation() {
+    var btn = document.getElementById('request-cancel-btn');
+    if (!window.confirm('Request cancellation of your subscription? Our team will confirm by email. Your plan stays active until then.')) {
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Sending request…';
+    var res;
+    try {
+      res = await fetch('/api/client/subscription', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'request_cancellation' })
+      });
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'Request cancellation';
+      window.alert('Could not send the request. Please email info@bracketplanning.ca.');
+      return;
+    }
+    if (!res.ok) {
+      btn.disabled = false;
+      btn.textContent = 'Request cancellation';
+      var err = await res.json().catch(function () { return {}; });
+      window.alert(err.error || 'Could not send the request. Please email info@bracketplanning.ca.');
+      return;
+    }
+    await loadBilling();
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
 
